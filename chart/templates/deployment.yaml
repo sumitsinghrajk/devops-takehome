@@ -26,9 +26,15 @@ spec:
           env:
             - name: PORT
               value: {{ .Values.containerPort | quote }}
+            - name: CONFIG_DIR
+              value: /etc/app-config
           envFrom:
             - configMapRef:
                 name: {{ include "demo-app.fullname" . }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/app-config
+              readOnly: true
           livenessProbe:
             httpGet:
               path: /healthz
@@ -47,3 +53,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "demo-app.fullname" . }}

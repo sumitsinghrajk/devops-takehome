@@ -6,6 +6,18 @@ import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+CONFIG_DIR = os.environ.get("CONFIG_DIR", "/etc/app-config")
+
+
+def setting(name):
+    """Prefer the mounted ConfigMap file (kubelet updates it without a restart),
+    fall back to the environment variable."""
+    try:
+        with open(os.path.join(CONFIG_DIR, name)) as f:
+            return f.read().strip()
+    except OSError:
+        return os.environ.get(name, "")
+
 
 class Handler(BaseHTTPRequestHandler):
     def _send(self, status, payload):
@@ -19,10 +31,10 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?", 1)[0]
         if path == "/":
-            # Read env on every request so runtime changes are reflected.
+            # Read on every request so ConfigMap/env changes are reflected.
             self._send(200, {
-                "app": os.environ.get("APP_NAME", ""),
-                "version": os.environ.get("VERSION", ""),
+                "app": setting("APP_NAME"),
+                "version": setting("VERSION"),
                 "pod": socket.gethostname(),
             })
         elif path == "/healthz":
