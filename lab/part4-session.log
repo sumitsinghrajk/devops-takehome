@@ -2209,3 +2209,29 @@ PROBE_DNS=fail
 [?2004lexit
 
 Script done on 2026-11-21 15:10:28+00:00 [COMMAND_EXIT_CODE="0"]
+Script started on 2026-11-21 18:49:37+00:00 [TERM="xterm-256color" TTY="/dev/pts/7" COLUMNS="142" LINES="17"]
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ exitfor i in 1 2 3; do echo "--- run $i"; incluster_probe; done[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cexit[K[K[7mps aux | grep '[s]cript -q'[27mps aux | grep '[s]cript -q'
+[?2004lsumit     127549  0.0  0.0   3232  2208 pts/7    S+   18:49   0:00 [01;31m[Kscript -q[m[K -a part4-session.log
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mwc -l FINDINGS.md[27mwc -l FINDINGS.md
+[?2004l254 FINDINGS.md
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgrep -n "TODO" FINDINGS.md[27mgrep -n "TODO" FINDINGS.md
+[?2004l[32m[K123[m[K[36m[K:[m[K[01;31m[KTODO[m[K (write this in your own words): I changed `common.port` to `8081` in `values.yaml`. Explain why this option and not setting `PORT` on every workload, and why the Services' own `port: 8080` could stay the same (clients keep their addresses).
+[32m[K156[m[K[36m[K:[m[K[01;31m[KTODO[m[K (write this in your own words): I set `requests.cpu: 50m` and `limits.cpu: 200m`, the same as the other workloads. Explain why both values had to change (request must not exceed limit, and the limit must be at most the LimitRange max), why I picked these numbers, and that `cluster-state/` was not touched.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ grep -n "TODO" FINDINGS.md
+[?2004l[32m[K120[m[K[36m[K:[m[K[01;31m[KTODO[m[K : I changed `common.port` to `8081` in `values.yaml`. Explain why this option and not setting `PORT` on every workload, and why the Services' own `port: 8080` could stay the same (clients keep their addresses).
+[32m[K153[m[K[36m[K:[m[K[01;31m[KTODO[m[K: I set `requests.cpu: 50m` and `limits.cpu: 200m`, the same as the other workloads. Explain why both values had to change (request must not exceed limit, and the limit must be at most the LimitRange max), why I picked these numbers, and that `cluster-state/` was not touched.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgrep -n "TODO" FINDINGS.md[27mgrep -n "TODO" FINDINGS.md
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgrep -c "bl9xv" part4-session.log[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgrep -c "bl9xv" part4-session.log
+[A
+[?2004l5
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgrep -c "s22k9" part4-session.log[27mgrep -c "s22k9" part4-session.log
+[?2004l5
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mps aux | grep '[s]cript -q'[27mps aux | grep '[s]cript -q'
+[?2004lsumit     127549  0.0  0.0   3232  2208 pts/7    S+   18:49   0:00 [01;31m[Kscript -q[m[K -a part4-session.log
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mexit[27m
+[7mps aux | grep '[s]cript -q'[27m[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ exit
+ps aux | grep '[s]cript -q'
+[?2004lexit
+
+Script done on 2026-11-21 18:58:04+00:00 [COMMAND_EXIT_CODE="0"]
