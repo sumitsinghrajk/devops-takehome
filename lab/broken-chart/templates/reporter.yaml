@@ -49,12 +49,6 @@ spec:
               drop: ["ALL"]
           resources:
             {{- toYaml .Values.reporter.resources | nindent 12 }}
-          volumeMounts:
-            - name: cache
-              mountPath: /var/cache/app
-      volumes:
-        - name: cache
-          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
