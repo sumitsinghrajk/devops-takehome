@@ -1,0 +1,2211 @@
+Script started on 2026-11-21 09:05:25+00:00 [TERM="xterm-256color" TTY="/dev/pts/7" COLUMNS="159" LINES="16"]
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m./scenario.sh up
+[?2004l==> applying cluster environment (cluster-state/)
+namespace/debug-lab created
+Error from server (NotFound): error when creating "cluster-state/limits.yaml": namespaces "debug-lab" not found
+==> installing the broken chart
+Release "debug-lab" does not exist. Installing it now.
+Error: 1 error occurred:
+	* Job.batch "migrate" is invalid: spec.template.spec.restartPolicy: Required value: valid values: "OnFailure", "Never"
+
+
+
+[2mhelm reported an error. That is not your machine misbehaving —[0m
+[2mit is part of the exercise. Read the error; it is evidence.[0m
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get limitrange -n debug-lab[27mkubectl get limitrange -n debug-lab
+[?2004lNo resources found in debug-lab namespace.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl apply -f cluster-state/[27mkubectl apply -f cluster-state/
+[?2004llimitrange/debug-lab-guardrails created
+namespace/debug-lab unchanged
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl describe limitrange -n debug-lab[27mkubectl describe limitrange -n debug-lab
+[?2004lName:       debug-lab-guardrails
+Namespace:  debug-lab
+Type        Resource  Min  Max    Default Request  Default Limit  Max Limit/Request Ratio
+----        --------  ---  ---    ---------------  -------------  -----------------------
+Container   cpu       -    1      50m              200m           -
+Container   memory    -    512Mi  64Mi             128Mi          -
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mhelm list -n debug-lab[27mhelm list -n debug-lab
+[?2004lNAME     	NAMESPACE	REVISION	UPDATED                                	STATUS	CHART          	APP VERSION
+debug-lab	debug-lab	1       	2026-11-21 09:05:34.513641757 +0000 UTC	failed	debug-lab-2.0.0	1.0.1      
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get all -n debug-lab[27mkubectl get all -n debug-lab
+[?2004lNAME                           READY   STATUS                       RESTARTS   AGE
+pod/backend-794fdd8bbd-ktcvc   0/1     CreateContainerConfigError   0          4m34s
+pod/gateway-6ddf8cd98d-2w27l   0/1     CreateContainerConfigError   0          4m34s
+pod/metrics-95b697765-x8rq9    0/1     CreateContainerConfigError   0          4m34s
+pod/reporter-969499965-47hsl   0/1     CreateContainerConfigError   0          4m34s
+pod/worker-c74cb95bd-cwhqz     0/1     CreateContainerConfigError   0          4m34s
+
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/backend    ClusterIP   10.96.132.44    <none>        8080/TCP   4m34s
+service/gateway    ClusterIP   10.96.103.124   <none>        80/TCP     4m34s
+service/reporter   ClusterIP   10.96.176.78    <none>        8080/TCP   4m34s
+
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/backend    0/1     1            0           4m34s
+deployment.apps/gateway    0/1     1            0           4m34s
+deployment.apps/metrics    0/1     1            0           4m34s
+deployment.apps/reporter   0/1     1            0           4m34s
+deployment.apps/worker     0/1     1            0           4m34s
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/backend-794fdd8bbd   1         1         0       4m34s
+replicaset.apps/gateway-6ddf8cd98d   1         1         0       4m34s
+replicaset.apps/metrics-95b697765    1         1         0       4m34s
+replicaset.apps/reporter-969499965   1         1         0       4m34s
+replicaset.apps/worker-c74cb95bd     1         1         0       4m34s
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ kubectl logs
+[?2004lerror: expected 'logs [-f] [-p] (POD | TYPE/NAME) [-c CONTAINER]'.
+POD or TYPE/NAME is a required argument for the logs command
+See 'kubectl logs -h' for help and examples
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab deploy/backend[27mkubectl logs -n debug-lab deploy/backend
+[?2004lError from server (BadRequest): container "backend" in pod "backend-794fdd8bbd-ktcvc" is waiting to start: CreateContainerConfigError
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl describe pod -n debug-lab -l app=backend[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl describe pod -n debug-lab -l app=backend
+[?2004lName:             backend-794fdd8bbd-ktcvc
+Namespace:        debug-lab
+Priority:         0
+Service Account:  default
+Node:             demo-control-plane/172.18.0.2
+Start Time:       Sat, 21 Nov 2026 09:05:35 +0000
+Labels:           app=backend
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/part-of=eb-debug-lab
+                  helm.sh/chart=debug-lab-2.0.0
+                  pod-template-hash=794fdd8bbd
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.8
+IPs:
+  IP:           10.244.0.8
+Controlled By:  ReplicaSet/backend-794fdd8bbd
+Containers:
+  backend:
+    Container ID:   
+    Image:          docker.io/ebinterview/eb-debug-app:1.0.1
+    Image ID:       
+    Port:           8080/TCP (http)
+    Host Port:      0/TCP (http)
+    State:          Waiting
+      Reason:       CreateContainerConfigError
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:      50m
+      memory:   64Mi
+    Readiness:  http-get http://:8080/healthz delay=3s timeout=3s period=5s #success=1 #failure=3
+    Environment:
+      APP_MODE:  api
+      APP_NAME:  backend
+      VERSION:   2.0.0
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-wm7pt (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-wm7pt:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  59m                    default-scheduler  Successfully assigned debug-lab/backend-794fdd8bbd-ktcvc to demo-control-plane
+  Normal   Pulling    59m                    kubelet            Pulling image "docker.io/ebinterview/eb-debug-app:1.0.1"
+  Normal   Pulled     59m                    kubelet            Successfully pulled image "docker.io/ebinterview/eb-debug-app:1.0.1" in 1.624s (10.154s including waiting). Image size: 3279587 bytes.
+  Warning  Failed     57m (x12 over 59m)     kubelet            Error: container has runAsNonRoot and image has non-numeric user (nonroot), cannot verify user is non-root (pod: "backend-794fdd8bbd-ktcvc_debug-lab(4f622db6-bbde-4425-a4d7-3809ff635360)", container: backend)
+  Normal   Pulled     4m12s (x256 over 59m)  kubelet            Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mdocker inspect docker.io/ebinterview/eb-debug-app:1.0.1 --format '{{.Config.User}}'[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cdocker inspect docker.io/ebinterview/eb-debug-app:1.0.1 --format '{{.Config.User}}'
+[?2004l
+error: no such object: docker.io/ebinterview/eb-debug-app:1.0.1
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mdocker exec demo-control-plane crictl inspecti docker.io/ebinterview/eb-debug-app:1.0.1[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cdocker exec demo-control-plane crictl inspecti docker.io/ebinterview/eb-debug-app:1.0.1
+[?2004l{
+  "status": {
+    "id": "sha256:f163f2757bc97ff58d8af74345727fc2261533f47c99dfb698bbf6be48bb46ce",
+    "repoTags": [
+      "docker.io/ebinterview/eb-debug-app:1.0.1"
+    ],
+    "repoDigests": [
+      "docker.io/ebinterview/eb-debug-app@sha256:17f41698c10f5c18693339281b92d3cfef16d9fcffcad440a24e7ab19e05c443"
+    ],
+    "size": "3279587",
+    "uid": null,
+    "username": "nonroot",
+    "spec": null,
+    "pinned": false
+  },
+  "info": {
+    "chainID": "sha256:0a2f4f2e0468a6add99e471a5b8f7478e638659b8340d87423633d644df19ec8",
+    "imageSpec": {
+      "created": "2026-07-31T08:41:50.864288199Z",
+      "architecture": "amd64",
+      "os": "linux",
+      "config": {
+        "User": "nonroot",
+        "ExposedPorts": {
+          "8081/tcp": {}
+        },
+        "Env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
+        ],
+        "Entrypoint": [
+          "/eb-debug-app"
+        ],
+        "WorkingDir": "/home/nonroot"
+      },
+      "rootfs": {
+        "type": "layers",
+        "diff_ids": [
+          "sha256:7223ea1323e8c1159ec17f07d35acc27bdd1cc2bc3ed425b44ef21dac9915db0",
+          "sha256:8fa10c0194df9b7c054c90dbe482585f768a54428fc90a5b78a0066a123b1bba",
+          "sha256:35b5ba6e08cdd034b8d1920f9c7203e5d66f258e1915f164a01de0af14f34710",
+          "sha256:114dde0fefebbca13165d0da9c500a66190e497a82a53dcaabc3172d630be1e9",
+          "sha256:4d049f83d9cf21d1f5cc0e11deaf36df02790d0e60c1a3829538fb4b61685368",
+          "sha256:af5aa97ebe6ce1604747ec1e21af7136ded391bcabe4acef882e718a87c86bcc",
+          "sha256:6f1cdceb6a3146f0ccb986521156bef8a422cdbb0863396f7f751f575ba308f4",
+          "sha256:bd3cdfae1d3fdd83a2231d608969b38b82349777c2fff9a7c12d54f8ac5c9b38",
+          "sha256:4cde6b0bb6f50a5f255eef7b2a42162c661cf776b803225dcac9a659e396bb6b",
+          "sha256:ad51d0769d16ba578106a177987dfe3d2e02c1668c852b795b2f6b024068242a",
+          "sha256:6e7fbcf090d09b73a4aa85f9dce690d0ace73877c150b7c56955487b6e7a822a",
+          "sha256:33b37ab0b0901175c2699d81c10b0c887f0dff944de74763cca00c155904d6fb",
+          "sha256:2d8ca010f9fd47a90f2dba9ebf85a4b3dd7983cd6b6605a0f1d5d7eac7131522"
+        ]
+      },
+      "history": [
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build @bookworm//base-files/amd64:data_statusd"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build @bookworm//netbase/amd64:data_statusd"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build @bookworm//tzdata/amd64:data_statusd"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build @bookworm//media-types/amd64:data_statusd"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build //common:rootfs"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build //common:passwd"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build //common:home"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build //common:group"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build //common:tmp"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build //static:nsswitch"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build //common:os_release_debian12"
+        },
+        {
+          "created": "1970-01-01T00:00:00Z",
+          "created_by": "bazel build //common:cacerts_debian12_amd64"
+        },
+        {
+          "created": "2026-07-31T08:41:50.864288199Z",
+          "created_by": "COPY /eb-debug-app /eb-debug-app # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2026-07-31T08:41:50.864288199Z",
+          "created_by": "EXPOSE [8081/tcp]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2026-07-31T08:41:50.864288199Z",
+          "created_by": "USER nonroot",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2026-07-31T08:41:50.864288199Z",
+          "created_by": "ENTRYPOINT [\"/eb-debug-app\"]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        }
+      ]
+    }
+  }
+}
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mdocker pull docker.io/ebinterview/eb-debug-app:1.0.1[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cdocker pull docker.io/ebinterview/eb-debug-app:1.0.1
+[?2004l1.0.1: Pulling from ebinterview/eb-debug-app
+
+[1A[2Ka0a865287d07: Pulling fs layer [1B
+[1A[2K0f8b424aa0b9: Pulling fs layer [1B
+[1A[2K68e4cd60e60f: Pulling fs layer [1B
+[1A[2Kd557676654e5: Pulling fs layer [1B
+[1A[2K6b72b81ed966: Pulling fs layer [1B
+[1A[2Kc36c4b61cfba: Pulling fs layer [1B
+[1A[2Kefae86a3fb38: Pulling fs layer [1B
+[1A[2Kad7fcb30079d: Pulling fs layer [1B
+[1A[2K6cdd517ba905: Pulling fs layer [1B
+[1A[2K0783a66ae749: Pulling fs layer [1B
+[1A[2K2e4cf50eeb92: Pulling fs layer [1B
+[1A[2Kd82bc7a76a83: Pulling fs layer [1B
+[1A[2Ke1089d61b200: Pulling fs layer [1B[11A[2K68e4cd60e60f: Download complete [11B[12A[2K0f8b424aa0b9: Download complete [12B[10A[2Kd557676654e5: Download complete [10B[2A[2Kd82bc7a76a83: Download complete [2B[9A[2K6b72b81ed966: Download complete [9B[7A[2Kefae86a3fb38: Download complete [7B[13A[2Ka0a865287d07: Downloading [====================>                              ]  1.049MB/2.552MB[13B[1A[2Ke1089d61b200: Download complete [1B[4A[2K0783a66ae749: Download complete [4B[3A[2K2e4cf50eeb92: Download complete [3B[6A[2Kad7fcb30079d: Download complete [6B[13A[2Ka0a865287d07: Downloading [=========================================>         ]  2.097MB/2.552MB[13B[6A[2Kad7fcb30079d: Extracting 1 s[6B[13A[2Ka0a865287d07: Downloading [==========================================>        ]   2.15MB/2.552MB[13B[5A[2K6cdd517ba905: Download complete [5B[6A[2Kad7fcb30079d: Extracting 1 s[6B[13A[2Ka0a865287d07: Download complete [13B[3A[2K2e4cf50eeb92: Pull complete [3B[6A[2Kad7fcb30079d: Pull complete [6B[8A[2Kc36c4b61cfba: Download complete [8B[8A[2Kc36c4b61cfba: Extracting 1 s[8B[8A[2Kc36c4b61cfba: Extracting 1 s[8B[8A[2Kc36c4b61cfba: Extracting 1 s[8B[1A[2Ke1089d61b200: Pull complete [1B[8A[2Kc36c4b61cfba: Pull complete [8B[11A[2K68e4cd60e60f: Pull complete [11B[12A[2K0f8b424aa0b9: Pull complete [12B[10A[2Kd557676654e5: Pull complete [10B[2A[2Kd82bc7a76a83: Pull complete [2B[9A[2K6b72b81ed966: Pull complete [9B[7A[2Kefae86a3fb38: Pull complete [7B[4A[2K0783a66ae749: Pull complete [4B[5A[2K6cdd517ba905: Extracting 1 s[5B[5A[2K6cdd517ba905: Pull complete [5B[13A[2Ka0a865287d07: Pull complete [13BDigest: sha256:17f41698c10f5c18693339281b92d3cfef16d9fcffcad440a24e7ab19e05c443
+Status: Downloaded newer image for ebinterview/eb-debug-app:1.0.1
+docker.io/ebinterview/eb-debug-app:1.0.1
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mdocker create --name tmp-eb docker.io/ebinterview/eb-debug-app:1.0.1[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cdocker create --name tmp-eb docker.io/ebinterview/eb-debug-app:1.0.1
+[?2004le8b3a748855e77fc92a22db168abdb755e8e2cce869b3b4f247d08d4cba0809b
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mdocker cp tmp-eb:/etc/passwd /tmp/passwd.eb[27mdocker cp tmp-eb:/etc/passwd /tmp/passwd.eb
+[?2004lSuccessfully copied 149B (transferred 2.05kB) to /tmp/passwd.eb
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mcat /tmp/passwd.eb[27mcat /tmp/passwd.eb
+[?2004lroot:x:0:0:root:/root:/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/sbin/nologin
+nonroot:x:65532:65532:nonroot:/home/nonroot:/sbin/nologin
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mdocker rm tmp-eb[27mdocker rm tmp-eb
+[?2004ltmp-eb
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7msed -i 's/^\( *\)runAsNonRoot: true$/&\n\1runAsUser: {{ .Values.common.runAsUser }}/' broken-chart/templates/*.yam[27m[7ml[27m[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sed -i 's/^\( *\)runAsNonRoot: true$/&\n\1runAsUser: {{ .Values.common.runAsUser }}/' broken-chart/templates/*.yaml
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit diff --stat[27mgit diff --stat
+[?2004l[?1h= lab/broken-chart/templates/backend.yaml     | 1 [32m+[m[m
+ lab/broken-chart/templates/gateway.yaml     | 1 [32m+[m[m
+ lab/broken-chart/templates/metrics.yaml     | 1 [32m+[m[m
+ lab/broken-chart/templates/migrate-job.yaml | 1 [32m+[m[m
+ lab/broken-chart/templates/reporter.yaml    | 1 [32m+[m[m
+ lab/broken-chart/templates/worker.yaml      | 1 [32m+[m[m
+ lab/broken-chart/values.yaml                | 2 [32m++[m[m
+ 7 files changed, 8 insertions(+)[m
+[K[?1l>[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit diff broken-chart/templates/backend.yaml[27mgit diff broken-chart/templates/backend.yaml
+[?2004l[?1h=[1mdiff --git a/lab/broken-chart/templates/backend.yaml b/lab/broken-chart/templates/backend.yaml[m[m
+[1mindex 99938bd..2ab6877 100644[m[m
+[1m--- a/lab/broken-chart/templates/backend.yaml[m[m
+[1m+++ b/lab/broken-chart/templates/backend.yaml[m[m
+[36m@@ -37,6 +37,7 @@[m [mspec:[m[m
+             timeoutSeconds: 3[m[m
+           securityContext:[m[m
+             runAsNonRoot: true[m[m
+[32m+[m[32m            runAsUser: {{ .Values.common.runAsUser }}[m[m
+             readOnlyRootFilesystem: true[m[m
+             allowPrivilegeEscalation: false[m[m
+             capabilities:[m[m
+[K[?1l>[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mhelm template debug-lab ./broken-chart | grep -n "runAsUser"[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Chelm template debug-lab ./broken-chart | grep -n "runAsUser"
+[?2004l[32m[K147[m[K[36m[K:[m[K            [01;31m[KrunAsUser[m[K: 65532
+[32m[K208[m[K[36m[K:[m[K            [01;31m[KrunAsUser[m[K: 65532
+[32m[K267[m[K[36m[K:[m[K            [01;31m[KrunAsUser[m[K: 65532
+[32m[K331[m[K[36m[K:[m[K            [01;31m[KrunAsUser[m[K: 65532
+[32m[K390[m[K[36m[K:[m[K            [01;31m[KrunAsUser[m[K: 65532
+[32m[K434[m[K[36m[K:[m[K            [01;31m[KrunAsUser[m[K: 65532
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit diff broken-chart/templates/migrate-job.yaml[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit diff broken-chart/templates/migrate-job.yaml
+[?2004l[?1h=[1mdiff --git a/lab/broken-chart/templates/migrate-job.yaml b/lab/broken-chart/templates/migrate-job.yaml[m[m
+[1mindex e9d5aa2..2877df6 100644[m[m
+[1m--- a/lab/broken-chart/templates/migrate-job.yaml[m[m
+[1m+++ b/lab/broken-chart/templates/migrate-job.yaml[m[m
+[36m@@ -13,7 +13,7 @@[m [mspec:[m[m
+       labels:[m[m
+         app: migrate[m[m
+     spec:[m[m
+[31m-      restartPolicy: Always[m[m
+[32m+[m[32m      restartPolicy: never[m[m
+       containers:[m[m
+         - name: migrate[m[m
+           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"[m[m
+[36m@@ -27,6 +27,7 @@[m [mspec:[m[m
+               value: "2.0.0"[m[m
+:[K[K[?1l>[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit config --global core.pager cat[27mgit config --global core.pager cat
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit diff broken-chart/templates/migrate-job.yaml | cat[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit diff broken-chart/templates/migrate-job.yaml | cat
+[?2004ldiff --git a/lab/broken-chart/templates/migrate-job.yaml b/lab/broken-chart/templates/migrate-job.yaml
+index e9d5aa2..fb4f3a9 100644
+--- a/lab/broken-chart/templates/migrate-job.yaml
++++ b/lab/broken-chart/templates/migrate-job.yaml
+@@ -13,7 +13,7 @@ spec:
+       labels:
+         app: migrate
+     spec:
+-      restartPolicy: Always
++      restartPolicy: Never
+       containers:
+         - name: migrate
+           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+@@ -27,6 +27,7 @@ spec:
+               value: "2.0.0"
+           securityContext:
+             runAsNonRoot: true
++            runAsUser: {{ .Values.common.runAsUser }}
+             readOnlyRootFilesystem: true
+             allowPrivilegeEscalation: false
+             capabilities:
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mhelm lint ./broken-chart[27mhelm lint ./broken-chart
+[?2004l==> Linting ./broken-chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mhelm template debug-lab ./broken-chart | grep -n "restartPolicy"[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Chelm template debug-lab ./broken-chart | grep -n "restartPolicy"
+[?2004l[32m[K420[m[K[36m[K:[m[K      [01;31m[KrestartPolicy[m[K: Never
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ 
+q
+[?2004lCommand 'q' not found, but can be installed with:
+sudo snap install q                       # version 1.6.3-1, or
+sudo apt  install python3-q-text-as-data  # version 3.1.6-4build1
+See 'snap info q' for additional versions.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ 
+[A
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m./scenario.sh up
+[?2004l==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 10:27:20 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab[27mkubectl get pods -n debug-lab
+[?2004lNAME                        READY   STATUS                       RESTARTS      AGE
+backend-565ccb9466-8hw8t    0/1     Running                      0             50s
+backend-794fdd8bbd-ktcvc    0/1     CreateContainerConfigError   0             82m
+gateway-5c9dd78594-xnzgn    0/1     Running                      0             50s
+gateway-6ddf8cd98d-2w27l    0/1     CreateContainerConfigError   0             82m
+metrics-95b697765-x8rq9     0/1     CreateContainerConfigError   0             82m
+migrate-s22k9               0/1     Completed                    0             50s
+reporter-86d6b886f5-rpbqr   0/1     Running                      0             50s
+reporter-969499965-47hsl    0/1     CreateContainerConfigError   0             82m
+worker-5466b784f4-bl9xv     0/1     Error                        3 (31s ago)   50s
+worker-c74cb95bd-cwhqz      0/1     CreateContainerConfigError   0             82m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab worker-5466b784f4-bl9xv[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl logs -n debug-lab worker-5466b784f4-bl9xv
+[?2004l2026/11/21 10:30:35 FATAL: worker could not initialise its cache: mkdir /var/cache/app: read-only file system — the process needs a writable directory at /var/cache/app (mount a volume there, or set CACHE_DIR)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab backend-565ccb9466-8hw8t[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl logs -n debug-lab backend-565ccb9466-8hw8t
+[?2004l2026/11/21 10:27:22 eb-debug-app 2.0.0 starting: mode=api pod=backend-565ccb9466-8hw8t listening on :8081 (image default is 8081; set PORT to override)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl describe pod -n debug-lab backend-565ccb9466-8hw8t | tail -20[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl describe pod -n debug-lab backend-565ccb9466-8hw8t | tail -20
+[?2004l  PodScheduled                True 
+Volumes:
+  kube-api-access-rbmkj:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  13m                    default-scheduler  Successfully assigned debug-lab/backend-565ccb9466-8hw8t to demo-control-plane
+  Normal   Pulled     13m                    kubelet            Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine
+  Normal   Created    13m                    kubelet            Created container backend
+  Normal   Started    13m                    kubelet            Started container backend
+  Warning  Unhealthy  3m46s (x130 over 13m)  kubelet            Readiness probe failed: Get "http://10.244.0.12:8080/healthz": dial tcp 10.244.0.12:8080: connect: connection refused
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl describe rs -n debug-lab -l app=metrics | tail -20[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl describe rs -n debug-lab -l app=metrics | tail -20
+[?2004l   metrics:
+    Image:      docker.io/ebinterview/eb-debug-app:1.0.1
+    Port:       8080/TCP (http)
+    Host Port:  0/TCP (http)
+    Limits:
+      cpu:     4
+      memory:  128Mi
+    Requests:
+      cpu:      2
+      memory:   64Mi
+    Readiness:  http-get http://:8080/healthz delay=3s timeout=3s period=5s #success=1 #failure=3
+    Environment:
+      APP_MODE:    api
+      APP_NAME:    metrics
+      VERSION:     2.0.0
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Events:            <none>
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ kubectl describe rs -n debug-lab -l app=metrics | tail -20[11@pod -n debug-lab backend-565ccb9466-8hw8t[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[19Plogs -n debug-lab backend-565ccb9466-8hw8t[1Pworker-5466b784f4-bl9xv[20Pget pods -n debug-lab[13P./scenario.sh upq[K./scenario.sh up
+[?2004l==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Error: UPGRADE FAILED: YAML parse error on debug-lab/templates/worker.yaml: error converting YAML to JSON: yaml: line 58: mapping values are not allowed in this context
+
+[2mhelm reported an error. That is not your machine misbehaving —[0m
+[2mit is part of the exercise. Read the error; it is evidence.[0m
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get rs -n debug-lab -l app=metrics[27mkubectl get rs -n debug-lab -l app=metrics
+[?2004lNAME                 DESIRED   CURRENT   READY   AGE
+metrics-6cd9c5666c   1         0         0       17m
+metrics-95b697765    1         1         0       99m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl describe rs metrics-6cd9c5666c -n debug-lab | tail -15[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl describe rs metrics-6cd9c5666c -n debug-lab | tail -15
+[?2004l  ----             ------  ------
+  ReplicaFailure   True    FailedCreate
+Events:
+  Type     Reason        Age                 From                   Message
+  ----     ------        ----                ----                   -------
+  Warning  FailedCreate  19m                 replicaset-controller  Error creating: pods "metrics-6cd9c5666c-kkg26" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+  Warning  FailedCreate  19m                 replicaset-controller  Error creating: pods "metrics-6cd9c5666c-xxdt4" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+  Warning  FailedCreate  19m                 replicaset-controller  Error creating: pods "metrics-6cd9c5666c-s5skt" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+  Warning  FailedCreate  19m                 replicaset-controller  Error creating: pods "metrics-6cd9c5666c-h8tjh" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+  Warning  FailedCreate  19m                 replicaset-controller  Error creating: pods "metrics-6cd9c5666c-5xw7f" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+  Warning  FailedCreate  19m                 replicaset-controller  Error creating: pods "metrics-6cd9c5666c-w5m2c" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+  Warning  FailedCreate  19m                 replicaset-controller  Error creating: pods "metrics-6cd9c5666c-j88zw" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+  Warning  FailedCreate  19m                 replicaset-controller  Error creating: pods "metrics-6cd9c5666c-p4vbr" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+  Warning  FailedCreate  19m                 replicaset-controller  Error creating: pods "metrics-6cd9c5666c-cfmnz" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+  Warning  FailedCreate  9m3s (x9 over 19m)  replicaset-controller  (combined from similar events): Error creating: pods "metrics-6cd9c5666c-lr9wc" is forbidden: maximum cpu usage per Container is 1, but limit is 4
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mhelm template debug-lab ./broken-chart | grep -n -A12 "name: metrics$" | head -40[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Chelm template debug-lab ./broken-chart | grep -n -A12 "name: metrics$" | head -40
+[?2004lError: YAML parse error on debug-lab/templates/worker.yaml: error converting YAML to JSON: yaml: line 58: mapping values are not allowed in this context
+
+Use --debug flag to render out invalid YAML
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mcat -A broken-chart/templates/worker.yaml[27mcat -A broken-chart/templates/worker.yaml
+[?2004lapiVersion: apps/v1$
+kind: Deployment$
+metadata:$
+  name: worker$
+  labels:$
+    app: worker$
+    {{- include "lab.labels" . | nindent 4 }}$
+spec:$
+  replicas: {{ .Values.worker.replicas }}$
+  selector:$
+    matchLabels:$
+      app: worker$
+  template:$
+    metadata:$
+      labels:$
+        app: worker$
+        {{- include "lab.labels" . | nindent 8 }}$
+    spec:$
+      containers:$
+        - name: worker$
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"$
+          imagePullPolicy: {{ .Values.image.pullPolicy }}$
+          ports:$
+            - name: http$
+              containerPort: {{ .Values.common.port }}$
+          env:$
+            {{- range $name, $value := .Values.worker.env }}$
+            - name: {{ $name }}$
+              value: {{ $value | quote }}$
+            {{- end }}$
+          readinessProbe:$
+            httpGet:$
+              path: /healthz$
+              port: {{ .Values.common.port }}$
+            initialDelaySeconds: 3$
+            periodSeconds: 5$
+            timeoutSeconds: 3$
+          securityContext:$
+            runAsNonRoot: true$
+            runAsUser: {{ .Values.common.runAsUser }}$
+            readOnlyRootFilesystem: true$
+            allowPrivilegeEscalation: false$
+            capabilities:$
+              drop: ["ALL"]$
+          resources:$
+            {{- toYaml .Values.worker.resources | nindent 12 }}$
+                      volumeMounts:      # NEW (container level)$
+            - name: cache$
+              mountPath: /var/cache/app$
+      volumes:                           # NEW (pod level)$
+        - name: cache$
+          emptyDir: {}$
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mhelm lint ./broken-chart[27mhelm lint ./broken-chart
+[?2004l==> Linting ./broken-chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mhelm template debug-lab ./broken-chart | grep -n -B2 -A2 "var/cache/app"[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Chelm template debug-lab ./broken-chart | grep -n -B2 -A2 "var/cache/app"
+[?2004l[32m[K402[m[K[36m[K-[m[K          volumeMounts:
+[32m[K403[m[K[36m[K-[m[K            - name: cache
+[32m[K404[m[K[36m[K:[m[K              mountPath: /[01;31m[Kvar/cache/app[m[K
+[32m[K405[m[K[36m[K-[m[K      volumes:
+[32m[K406[m[K[36m[K-[m[K        - name: cache
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m./scenario.sh up
+[?2004l==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 10:53:34 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 3
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab -l app=worker[27mkubectl get pods -n debug-lab -l app=worker
+[?2004lNAME                      READY   STATUS             RESTARTS       AGE
+worker-5466b784f4-bl9xv   0/1     CrashLoopBackOff   10 (61s ago)   27m
+worker-656bcd47f7-l29wp   0/1     Running            0              68s
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab <naya-worker-pod>[27mkubectl logs -n debug-lab <naya-worker-pod>[K>[1P>[1P>[1P>[1P>[1P>[1P>[1P>[1P>[1P>[1P>[1P>[1P>[1P>[1P>[1P>[7mworker-656bcd47f7-l29wp[27m>worker-656bcd47f7-l29wp
+[?2004lbash: syntax error near unexpected token `newline'
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mworker-656bcd47f7-l29wp[27m[1Pworker-656bcd47f7-l29w[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kkubectl logs -n debug-lab <worker-656bcd47f7-l29wp>[K[1P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C
+[?2004l2026/11/21 10:53:36 eb-debug-app 2.0.0 starting: mode=worker pod=worker-656bcd47f7-l29wp listening on :8081 (image default is 8081; set PORT to override)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit add broken-chart[27mgit add broken-chart
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit status --short[27mgit status --short
+[?2004l[32mM[m  broken-chart/templates/backend.yaml
+[32mM[m  broken-chart/templates/gateway.yaml
+[32mM[m  broken-chart/templates/metrics.yaml
+[32mM[m  broken-chart/templates/migrate-job.yaml
+[32mM[m  broken-chart/templates/reporter.yaml
+[32mM[m  broken-chart/templates/worker.yaml
+[32mM[m  broken-chart/values.yaml
+[31m??[m part4-session.log
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit commit -m "Fix lab defects: migrate restartPolicy, numeric runAsUser, worker cache volume"[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit commit -m "Fix lab defects: migrate restartPolicy, numeric runAsUser, worker cache volume"
+[?2004l[main fce1974] Fix lab defects: migrate restartPolicy, numeric runAsUser, worker cache volume
+ 7 files changed, 15 insertions(+), 1 deletion(-)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m./scenario.sh up
+[?2004l==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 13:48:24 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 4
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab[27mkubectl get pods -n debug-lab
+[?2004lNAME                        READY   STATUS                       RESTARTS       AGE
+backend-565ccb9466-8hw8t    0/1     Running                      0              3h21m
+backend-794fdd8bbd-ktcvc    0/1     CreateContainerConfigError   0              4h43m
+gateway-5c9dd78594-xnzgn    0/1     Running                      0              3h21m
+gateway-6ddf8cd98d-2w27l    0/1     CreateContainerConfigError   0              4h43m
+metrics-95b697765-x8rq9     0/1     CreateContainerConfigError   0              4h43m
+migrate-s22k9               0/1     Completed                    0              3h21m
+reporter-86d6b886f5-rpbqr   0/1     Running                      0              3h21m
+reporter-969499965-47hsl    0/1     CreateContainerConfigError   0              4h43m
+worker-5466b784f4-bl9xv     0/1     CrashLoopBackOff             44 (58s ago)   3h21m
+worker-656bcd47f7-l29wp     0/1     Running                      0              175m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit diff broken-chart/values.yaml | cat[27mgit diff broken-chart/values.yaml | cat
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgrep -n -A8 "^metrics:" broken-chart/values.yaml[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgrep -n -A8 "^metrics:" broken-chart/values.yaml
+[?2004l[32m[K78[m[K[36m[K:[m[K[01;31m[Kmetrics:[m[K
+[32m[K79[m[K[36m[K-[m[K  replicas: 1
+[32m[K80[m[K[36m[K-[m[K  env:
+[32m[K81[m[K[36m[K-[m[K    APP_MODE: "api"
+[32m[K82[m[K[36m[K-[m[K    APP_NAME: "metrics"
+[32m[K83[m[K[36m[K-[m[K    VERSION: "2.0.0"
+[32m[K84[m[K[36m[K-[m[K  resources:
+[32m[K85[m[K[36m[K-[m[K    requests:
+[32m[K86[m[K[36m[K-[m[K      cpu: "2"
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgrep -n "port" broken-chart/values.yaml[27mgrep -n "port" broken-chart/values.yaml
+[?2004l[32m[K15[m[K[36m[K:[m[K  # Every workload serves plain HTTP on this [01;31m[Kport[m[K.
+[32m[K16[m[K[36m[K:[m[K  [01;31m[Kport[m[K: 8080
+[32m[K63[m[K[36m[K:[m[Kre[01;31m[Kport[m[Ker:
+[32m[K65[m[K[36m[K:[m[K  serviceAccountName: re[01;31m[Kport[m[Ker
+[32m[K67[m[K[36m[K:[m[K    APP_MODE: "re[01;31m[Kport[m[Ker"
+[32m[K68[m[K[36m[K:[m[K    APP_NAME: "re[01;31m[Kport[m[Ker"
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit diff broken-chart/values.yaml | cat[27mgit diff broken-chart/values.yaml | cat
+[?2004ldiff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..1e8eb9f 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ image:
+ 
+ common:
+   # Every workload serves plain HTTP on this port.
+-  port: 8080
++  port: 8081
+   # Numeric UID of the image's "nonroot" user (from the image's /etc/passwd).
+   runAsUser: 65532
+ 
+@@ -81,12 +81,13 @@ metrics:
+     APP_MODE: "api"
+     APP_NAME: "metrics"
+     VERSION: "2.0.0"
++  resources:
+   resources:
+     requests:
+-      cpu: "2"
++      cpu: "50m"
+       memory: "64Mi"
+     limits:
+-      cpu: "4"
++      cpu: "200m"
+       memory: "128Mi"
+ 
+ migrate:
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mhelm template debug-lab ./broken-chart | grep -n -E "containerPort|targetPort|cpu:"[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Chelm template debug-lab ./broken-chart | grep -n -E "containerPort|targetPort|cpu:"
+[A
+[?2004l[32m[K63[m[K[36m[K:[m[K      [01;31m[KtargetPort[m[K: 8081
+[32m[K81[m[K[36m[K:[m[K      [01;31m[KtargetPort[m[K: 8081
+[32m[K99[m[K[36m[K:[m[K      [01;31m[KtargetPort[m[K: 8081
+[32m[K130[m[K[36m[K:[m[K              [01;31m[KcontainerPort[m[K: 8081
+[32m[K154[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 200m
+[32m[K157[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 50m
+[32m[K189[m[K[36m[K:[m[K              [01;31m[KcontainerPort[m[K: 8081
+[32m[K215[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 200m
+[32m[K218[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 50m
+[32m[K250[m[K[36m[K:[m[K              [01;31m[KcontainerPort[m[K: 8081
+[32m[K274[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 200m
+[32m[K277[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 50m
+[32m[K310[m[K[36m[K:[m[K              [01;31m[KcontainerPort[m[K: 8081
+[32m[K338[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 200m
+[32m[K341[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 50m
+[32m[K373[m[K[36m[K:[m[K              [01;31m[KcontainerPort[m[K: 8081
+[32m[K397[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 200m
+[32m[K400[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K 50m
+[32m[K447[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K "50m"
+[32m[K450[m[K[36m[K:[m[K              [01;31m[Kcpu:[m[K "200m"
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit diff broken-chart/values.yaml | cat[27mgit diff broken-chart/values.yaml | cat
+[?2004ldiff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..43f0c0e 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ image:
+ 
+ common:
+   # Every workload serves plain HTTP on this port.
+-  port: 8080
++  port: 8081
+   # Numeric UID of the image's "nonroot" user (from the image's /etc/passwd).
+   runAsUser: 65532
+ 
+@@ -83,10 +83,10 @@ metrics:
+     VERSION: "2.0.0"
+   resources:
+     requests:
+-      cpu: "2"
++      cpu: "50m"
+       memory: "64Mi"
+     limits:
+-      cpu: "4"
++      cpu: "200m"
+       memory: "128Mi"
+ 
+ migrate:
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C./scenario.sh up
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C
+[?2004l==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 13:56:32 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 5
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get pods -n debug-lab
+[A
+[?2004lNAME                        READY   STATUS      RESTARTS   AGE
+backend-66f89fcccb-dchz7    1/1     Running     0          22s
+gateway-5c9dd78594-xnzgn    0/1     Running     0          3h29m
+gateway-fd4b98f98-fzkxr     0/1     Running     0          22s
+metrics-7f497f58d5-xzw4r    1/1     Running     0          22s
+migrate-s22k9               0/1     Completed   0          3h29m
+reporter-78889bc55-jfvxg    0/1     Running     0          22s
+reporter-86d6b886f5-rpbqr   0/1     Running     0          3h29m
+worker-6f9db4b465-tl79g     1/1     Running     0          21s
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab gateway-fd4b98f98-fzkxr[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl logs -n debug-lab gateway-fd4b98f98-fzkxr
+[A
+[?2004l2026/11/21 13:56:35 eb-debug-app 2.0.0 starting: mode=gateway pod=gateway-fd4b98f98-fzkxr listening on :8081 (image default is 8081; set PORT to override)
+2026/11/21 13:56:39 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:56:39 GET /healthz -> 503 (from 10.244.0.1:54400)
+2026/11/21 13:56:43 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:56:43 GET /healthz -> 503 (from 10.244.0.1:59698)
+2026/11/21 13:56:48 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:56:48 GET /healthz -> 503 (from 10.244.0.1:59714)
+2026/11/21 13:56:54 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:56:54 GET /healthz -> 503 (from 10.244.0.1:34076)
+2026/11/21 13:56:58 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:56:58 GET /healthz -> 503 (from 10.244.0.1:34078)
+2026/11/21 13:57:03 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:03 GET /healthz -> 503 (from 10.244.0.1:36448)
+2026/11/21 13:57:09 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:09 GET /healthz -> 503 (from 10.244.0.1:36458)
+2026/11/21 13:57:13 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:13 GET /healthz -> 503 (from 10.244.0.1:34344)
+2026/11/21 13:57:18 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:18 GET /healthz -> 503 (from 10.244.0.1:34354)
+2026/11/21 13:57:24 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:24 GET /healthz -> 503 (from 10.244.0.1:35536)
+2026/11/21 13:57:28 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:28 GET /healthz -> 503 (from 10.244.0.1:35542)
+2026/11/21 13:57:33 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:33 GET /healthz -> 503 (from 10.244.0.1:35272)
+2026/11/21 13:57:39 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:39 GET /healthz -> 503 (from 10.244.0.1:35276)
+2026/11/21 13:57:43 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:43 GET /healthz -> 503 (from 10.244.0.1:40688)
+2026/11/21 13:57:44 readiness failed: backend not reachable: GET http://backend.default.svc:8080/healthz: Get "http://backend.default.svc:8080/healthz": dial tcp: lookup backend.default.svc on 10.96.0.10:53: no such host
+2026/11/21 13:57:44 GET /healthz -> 503 (from 10.244.0.1:40692)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab reporter-78889bc55-jfvxg[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl logs -n debug-lab reporter-78889bc55-jfvxg
+[A
+[?2004l2026/11/21 13:56:35 eb-debug-app 2.0.0 starting: mode=reporter pod=reporter-78889bc55-jfvxg listening on :8081 (image default is 8081; set PORT to override)
+2026/11/21 13:56:38 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+2026/11/21 13:56:38 GET /healthz -> 503 (from 10.244.0.1:42202)
+2026/11/21 13:56:43 GET /healthz -> 503 (from 10.244.0.1:49548)
+2026/11/21 13:56:48 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+2026/11/21 13:56:48 GET /healthz -> 503 (from 10.244.0.1:49552)
+2026/11/21 13:56:53 GET /healthz -> 503 (from 10.244.0.1:43236)
+2026/11/21 13:56:58 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+2026/11/21 13:56:58 GET /healthz -> 503 (from 10.244.0.1:43250)
+2026/11/21 13:57:03 GET /healthz -> 503 (from 10.244.0.1:39490)
+2026/11/21 13:57:08 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+2026/11/21 13:57:08 GET /healthz -> 503 (from 10.244.0.1:39502)
+2026/11/21 13:57:13 GET /healthz -> 503 (from 10.244.0.1:47410)
+2026/11/21 13:57:18 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+2026/11/21 13:57:18 GET /healthz -> 503 (from 10.244.0.1:47426)
+2026/11/21 13:57:23 GET /healthz -> 503 (from 10.244.0.1:40432)
+2026/11/21 13:57:28 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+2026/11/21 13:57:28 GET /healthz -> 503 (from 10.244.0.1:40440)
+2026/11/21 13:57:33 GET /healthz -> 503 (from 10.244.0.1:53998)
+2026/11/21 13:57:38 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+2026/11/21 13:57:38 GET /healthz -> 503 (from 10.244.0.1:54004)
+2026/11/21 13:57:43 GET /healthz -> 503 (from 10.244.0.1:45794)
+2026/11/21 13:57:48 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+2026/11/21 13:57:48 GET /healthz -> 503 (from 10.244.0.1:45808)
+2026/11/21 13:57:53 GET /healthz -> 503 (from 10.244.0.1:36676)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl describe pod -n debug-lab gateway-fd4b98f98-fzkxr | tail -12[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl describe pod -n debug-lab gateway-fd4b98f98-fzkxr | tail -12
+[A
+[?2004lQoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  91s                default-scheduler  Successfully assigned debug-lab/gateway-fd4b98f98-fzkxr to demo-control-plane
+  Normal   Pulled     90s                kubelet            Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine
+  Normal   Created    90s                kubelet            Created container gateway
+  Normal   Started    89s                kubelet            Started container gateway
+  Warning  Unhealthy  1s (x19 over 85s)  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 503
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl describe pod -n debug-lab reporter-78889bc55-jfvxg | tail -12[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl describe pod -n debug-lab reporter-78889bc55-jfvxg | tail -12
+[A
+[?2004lQoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  99s                default-scheduler  Successfully assigned debug-lab/reporter-78889bc55-jfvxg to demo-control-plane
+  Normal   Pulled     98s                kubelet            Container image "docker.io/ebinterview/eb-debug-app:1.0.1" already present on machine
+  Normal   Created    98s                kubelet            Created container reporter
+  Normal   Started    97s                kubelet            Started container reporter
+  Warning  Unhealthy  4s (x20 over 94s)  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 503
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get svc -A | grep -E "backend|NAMESPACE"[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get svc -A | grep -E "backend|NAMESPACE"
+[A
+[?2004l[01;31m[KNAMESPACE[m[K     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                  AGE
+debug-lab     [01;31m[Kbackend[m[K      ClusterIP   10.96.132.44    <none>        8080/TCP                 4h53m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get rolebinding reporter-read -n debug-lab -o yaml | grep -A5 subjects[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get rolebinding reporter-read -n debug-lab -o yaml | grep -A5 subjects
+[A
+[?2004l[01;31m[Ksubjects[m[K:
+- kind: ServiceAccount
+  name: default
+  namespace: debug-lab
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl auth can-i list pods -n debug-lab --as=system:serviceaccount:debug-lab:reporter[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl auth can-i list pods -n debug-lab --as=system:serviceaccount:debug-lab:reporter
+[?2004lno
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit diff broken-chart | cat[27mgit diff broken-chart | cat
+[?2004ldiff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ image:
+ 
+ common:
+   # Every workload serves plain HTTP on this port.
+-  port: 8080
++  port: 8081
+   # Numeric UID of the image's "nonroot" user (from the image's /etc/passwd).
+   runAsUser: 65532
+ 
+@@ -37,7 +37,7 @@ gateway:
+     APP_MODE: "gateway"
+     APP_NAME: "gateway"
+     VERSION: "2.0.0"
+-    BACKEND_URL: "http://backend.default.svc:8080"
++    BACKEND_URL: "http://backend.debug-lab.svc:8080"
+   resources:
+     requests:
+       cpu: "50m"
+@@ -83,10 +83,10 @@ metrics:
+     VERSION: "2.0.0"
+   resources:
+     requests:
+-      cpu: "2"
++      cpu: "50m"
+       memory: "64Mi"
+     limits:
+-      cpu: "4"
++      cpu: "200m"
+       memory: "128Mi"
+ 
+ migrate:
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ ^C[?2004l[?2004h[?2004l
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ image:
+ 
+ common:
+   # Every workload serves plain HTTP on this port.
+-  port: 8080
++  port: 8081
+   # Numeric UID of the image's "nonroot" user (from the image's /etc/passwd).
+   runAsUser: 65532
+ 
+@@ -37,7 +37,7 @@ gateway:
+     APP_MODE: "gateway"
+     APP_NAME: "gateway"
+     VERSION: "2.0.0"
+-    BACKEND_URL: "http://backend.default.svc:8080"
++    BACKEND_URL: "http://backend.debug-lab.svc:8080"
+   resources:
+[7m     requests:[27m
+[7m       cpu: "50m"[27m
+[7m@@ -83,10 +83,10 @@ metrics:[27m
+[7m     VERSION: "2.0.0"[27m
+[7m   resources:[27m
+[7m     requests:[27m
+[7m-      cpu: "2"[27m
+[7m+      cpu: "50m"[27m
+[7m       memory: "64Mi"[27m
+[7m     limits:[27m
+[7m-      cpu: "4"[27m
+[7m+      cpu: "200m"[27m
+[7m       memory: "128Mi"[27m
+[7m [27m
+[7m migrate:[27m
+[7msumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ [27m[A[A[A[A[A[A[A[A[A[A[A[A[A[A[A     requests:
+       cpu: "50m"
+@@ -83,10 +83,10 @@ metrics:
+     VERSION: "2.0.0"
+   resources:
+     requests:
+-      cpu: "2"
++      cpu: "50m"
+       memory: "64Mi"
+     limits:
+-      cpu: "4"
++      cpu: "200m"
+       memory: "128Mi"
+ 
+ migrate:
+[1Psumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[A[C[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[A[C[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ image[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ imag[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ ima[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ im[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ i[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@ [H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @@[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 @[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7 [H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,7[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13,[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +13[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +1[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 +[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7 [H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,7[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13,[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -13[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -1[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ -[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@ [H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@@[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+@[H[2J]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ sumit@Sumit-MSI:~/eb-devops-takehome-v2/lab$ git diff broken-chart | cat
+diff --git a/lab/broken-chart/templates/rbac.yaml b/lab/broken-chart/templates/rbac.yaml
+index fb4b7dc..3dbfe24 100644
+--- a/lab/broken-chart/templates/rbac.yaml
++++ b/lab/broken-chart/templates/rbac.yaml
+@@ -31,5 +31,5 @@ roleRef:
+   name: reporter-read
+ subjects:
+   - kind: ServiceAccount
+-    name: default
++    name: reporter
+     namespace: {{ .Release.Namespace }}
+diff --git a/lab/broken-chart/values.yaml b/lab/broken-chart/values.yaml
+index 665b937..b0abe16 100644
+--- a/lab/broken-chart/values.yaml
++++ b/lab/broken-chart/values.yaml
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kz[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kf[K^C[?2004l[?2004h[?2004l
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m./scenario.sh up
+[?2004l==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 14:07:29 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 6
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m[1P./scenario.sh u[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[7mkubectl auth can-i list pods -n debug-lab --as=system:serviceaccount:debug-lab:reporter[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl auth can-i list pods -n debug-lab --as=system:serviceaccount:debug-lab:reporter
+[A
+[?2004lyes
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get pods -n debug-lab
+[A
+[?2004lNAME                        READY   STATUS      RESTARTS   AGE
+backend-66f89fcccb-dchz7    1/1     Running     0          12m
+gateway-58d59b645d-hmxbr    1/1     Running     0          119s
+metrics-7f497f58d5-xzw4r    1/1     Running     0          12m
+migrate-s22k9               0/1     Completed   0          3h42m
+reporter-78889bc55-jfvxg    0/1     Running     0          12m
+reporter-86d6b886f5-rpbqr   0/1     Running     0          3h42m
+worker-6f9db4b465-tl79g     1/1     Running     0          12m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab -l app=reporter[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get pods -n debug-lab -l app=reporter
+[A
+[?2004lNAME                        READY   STATUS    RESTARTS   AGE
+reporter-78889bc55-jfvxg    0/1     Running   0          14m
+reporter-86d6b886f5-rpbqr   0/1     Running   0          3h43m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab reporter-78889bc55-jfvxg --tail=8[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl logs -n debug-lab reporter-78889bc55-jfvxg --tail=8
+[A
+[?2004l2026/11/21 14:10:23 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/21 14:10:23 GET /healthz -> 503 (from 10.244.0.1:38692)
+2026/11/21 14:10:28 GET /healthz -> 503 (from 10.244.0.1:38694)
+2026/11/21 14:10:33 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/21 14:10:33 GET /healthz -> 503 (from 10.244.0.1:60326)
+2026/11/21 14:10:38 GET /healthz -> 503 (from 10.244.0.1:60334)
+2026/11/21 14:10:43 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/21 14:10:43 GET /healthz -> 503 (from 10.244.0.1:44384)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh verify[27m./scenario.sh verify
+[?2004l==> verifying goal state in namespace debug-lab
+  [32mPASS[0m  migrate Job completed
+  [32mPASS[0m  deployment backend: 1/1 ready
+  [32mPASS[0m  deployment gateway: 1/1 ready
+  [32mPASS[0m  deployment worker: 1/1 ready
+  [31mFAIL[0m  deployment reporter: 0/1 ready
+  [32mPASS[0m  deployment metrics: 1/1 ready
+  [32mPASS[0m  no pods in CrashLoopBackOff
+  [32mPASS[0m  ServiceAccount debug-lab/reporter can list pods
+  [31mFAIL[0m  backend does not answer on http://backend:8080/healthz
+  [31mFAIL[0m  gateway /status does not report backend=ok
+  [31mFAIL[0m  reporter /report does not return a pod count
+
+[31m4 check(s) failing[0m, 7 passing. Keep digging — every failure is a symptom.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl -n debug-lab run probe-test --rm -i --restart=Never --image=busybox:1.36 --command -- sh -c 'wget -S -O- -[27m[7mT[27m[7m 4 http://backend:8080/healthz; echo "exit=$?"; nslookup backend'[27m[Akubectl -n debug-lab run probe-test --rm -i --restart=Never --image=busybox:1.36 --command -- sh -c 'wget -S -O- -T 4 http://backend:8080/healthz; echo "exit=$?"; nslookup backend'
+[?2004lAll commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+warning: couldn't attach to pod/probe-test, falling back to streaming logs: Internal error occurred: unable to upgrade connection: container probe-test not found in pod probe-test_debug-lab
+Connecting to backend:8080 (10.96.132.44:8080)
+  HTTP/1.1 200 OK
+  Content-Type: application/json
+  Date: Sat, 21 Nov 2026 14:12:24 GMT
+  Content-Length: 16
+  Connection: close
+  
+writing to stdout
+{"status":"ok"}
+-                    100% |********************************|    16  0:00:00 ETA
+written to stdout
+exit=0
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+** server can't find backend.cluster.local: NXDOMAIN
+
+Name:	backend.debug-lab.svc.cluster.local
+Address: 10.96.132.44
+
+** server can't find backend.svc.cluster.local: NXDOMAIN
+
+** server can't find backend.svc.cluster.local: NXDOMAIN
+
+** server can't find backend.cluster.local: NXDOMAIN
+
+
+pod "probe-test" deleted from debug-lab namespace
+pod debug-lab/probe-test terminated (Error)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh verify[27m./scenario.sh verify
+[?2004l==> verifying goal state in namespace debug-lab
+  [32mPASS[0m  migrate Job completed
+  [32mPASS[0m  deployment backend: 1/1 ready
+  [32mPASS[0m  deployment gateway: 1/1 ready
+  [32mPASS[0m  deployment worker: 1/1 ready
+  [31mFAIL[0m  deployment reporter: 0/1 ready
+  [32mPASS[0m  deployment metrics: 1/1 ready
+  [32mPASS[0m  no pods in CrashLoopBackOff
+  [32mPASS[0m  ServiceAccount debug-lab/reporter can list pods
+  [31mFAIL[0m  backend does not answer on http://backend:8080/healthz
+  [31mFAIL[0m  gateway /status does not report backend=ok
+  [31mFAIL[0m  reporter /report does not return a pod count
+
+[31m4 check(s) failing[0m, 7 passing. Keep digging — every failure is a symptom.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh verify[27m./scenario.sh verify
+[?2004l==> verifying goal state in namespace debug-lab
+  [32mPASS[0m  migrate Job completed
+  [32mPASS[0m  deployment backend: 1/1 ready
+  [32mPASS[0m  deployment gateway: 1/1 ready
+  [32mPASS[0m  deployment worker: 1/1 ready
+  [31mFAIL[0m  deployment reporter: 0/1 ready
+  [32mPASS[0m  deployment metrics: 1/1 ready
+  [32mPASS[0m  no pods in CrashLoopBackOff
+  [32mPASS[0m  ServiceAccount debug-lab/reporter can list pods
+  [31mFAIL[0m  backend does not answer on http://backend:8080/healthz
+  [31mFAIL[0m  gateway /status does not report backend=ok
+  [31mFAIL[0m  reporter /report does not return a pod count
+
+[31m4 check(s) failing[0m, 7 passing. Keep digging — every failure is a symptom.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get --raw "/api/v1/namespaces/debug-lab/pods" --as=system:serviceaccount:debug-lab:reporter | head -c 300;[27m[7m [27m[7mecho[27m[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ kubectl get --raw "/api/v1/namespaces/debug-lab/pods" --as=system:serviceaccount:debug-lab:reporter | head -c 300; echo
+[?2004l{"kind":"PodList","apiVersion":"v1","metadata":{"resourceVersion":"26209"},"items":[{"metadata":{"name":"backend-66f89fcccb-dchz7","generateName":"backend-66f89fcccb-","namespace":"debug-lab","uid":"5c3fc3a7-5b2a-4daa-b4a2-54bae9e3d227","resourceVersion":"24673","creationTimestamp":"2026-11-21T13:56
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl port-forward -n debug-lab pod/reporter-78889bc55-jfvxg 18081:8081 >/dev/null 2>&1 &[27m
+[7mPF=$![27m
+[7msleep 2[27m[A[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ kubectl port-forward -n debug-lab pod/reporter-78889bc55-jfvxg 18081:8081 >/dev/null 2>&1 &
+PF=$!
+sleep 2
+[?2004l[1] 67822
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mcurl -s -i localhost:18081/report[27mcurl -s -i localhost:18081/report
+[?2004lHTTP/1.1 503 Service Unavailable
+[1mContent-Type[0m: application/json
+[1mDate[0m: Sat, 21 Nov 2026 14:15:16 GMT
+[1mContent-Length[0m: 78
+
+{"error":"parse pod list: unexpected end of JSON input","status":"unhealthy"}
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkill %1[27mkill %1
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get --raw "/api/v1/namespaces/debug-lab/pods" --as=system:serviceaccount:debug-lab:reporter | wc -c[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get --raw "/api/v1/namespaces/debug-lab/pods" --as=system:serviceaccount:debug-lab:reporter | wc -c
+[?2004l44005
+[1]+  Terminated                 kubectl port-forward -n debug-lab pod/reporter-78889bc55-jfvxg 18081:8081 > /dev/null 2>&1
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl describe pod reporter-78889bc55-jfvxg -n debug-lab | sed -n '/^Containers:/,/^Conditions:/p'[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl describe pod reporter-78889bc55-jfvxg -n debug-lab | sed -n '/^Containers:/,/^Conditions:/p'
+[?2004lContainers:
+  reporter:
+    Container ID:   containerd://e3888146e11a9655da300cfb43c1378afbd547ba930319c4c37aad552bada4c7
+    Image:          docker.io/ebinterview/eb-debug-app:1.0.1
+    Image ID:       docker.io/ebinterview/eb-debug-app@sha256:17f41698c10f5c18693339281b92d3cfef16d9fcffcad440a24e7ab19e05c443
+    Port:           8081/TCP (http)
+    Host Port:      0/TCP (http)
+    State:          Running
+      Started:      Sat, 21 Nov 2026 13:56:35 +0000
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:      50m
+      memory:   64Mi
+    Readiness:  http-get http://:8081/healthz delay=3s timeout=3s period=5s #success=1 #failure=3
+    Environment:
+      NAMESPACE:  debug-lab (v1:metadata.namespace)
+      APP_MODE:   reporter
+      APP_NAME:   reporter
+      VERSION:    2.0.0
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-b2kl7 (ro)
+Conditions:
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl -n debug-lab run probe-3 --rm -i --restart=Never \[27m
+[7m  --image=busybox:1.36 --quiet --pod-running-timeout=90s --command -- sh -c '[27m
+[7m      wget -q -O- -T 4 http://backend:8080/healthz >/dev/null 2>&1 \[27m
+[7m        && echo PROBE_BACKEND=ok || echo PROBE_BACKEND=fail[27m
+[7m      GW=$(wget -q -O- -T 6 http://gateway.debug-lab.svc/status 2>/dev/null)[27m
+[7m      echo "PROBE_GATEWAY_BODY=$GW"[27m
+[7m      RP=$(wget -q -O- -T 6 http://reporter:8080/report 2>/dev/null)[27m
+[7m      echo "PROBE_REPORTER_BODY=$RP"[27m
+[7m      nslookup backend >/dev/null 2>&1 \[27m
+[7m        && echo PROBE_DNS=ok || echo PROBE_DNS=fail[27m
+[7m    '[27m[A[A[A[A[A[A[A[A[A[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ kubectl -n debug-lab run probe-3 --rm -i --restart=Never \
+  --image=busybox:1.36 --quiet --pod-running-timeout=90s --command -- sh -c '
+      wget -q -O- -T 4 http://backend:8080/healthz >/dev/null 2>&1 \
+        && echo PROBE_BACKEND=ok || echo PROBE_BACKEND=fail
+      GW=$(wget -q -O- -T 6 http://gateway.debug-lab.svc/status 2>/dev/null)
+      echo "PROBE_GATEWAY_BODY=$GW"
+      RP=$(wget -q -O- -T 6 http://reporter:8080/report 2>/dev/null)
+      echo "PROBE_REPORTER_BODY=$RP"
+      nslookup backend >/dev/null 2>&1 \
+        && echo PROBE_DNS=ok || echo PROBE_DNS=fail
+    '
+[?2004lPROBE_GATEWAY_BODY={"app":"gateway","backend":"ok","backend_url":"http://backend.debug-lab.svc:8080","pod":"gateway-58d59b645d-hmxbr","self":"ok","version":"2.0.0"}
+PROBE_REPORTER_BODY=
+PROBE_DNS=fail
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get --raw "/api/v1/namespaces/debug-lab/pods" --as=system:serviceaccount:debug-lab:reporter | wc -c[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get --raw "/api/v1/namespaces/debug-lab/pods" --as=system:serviceaccount:debug-lab:reporter | wc -c
+[A
+[?2004l44005
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl describe pod reporter-78889bc55-jfvxg -n debug-lab | sed -n '/^Containers:/,/^Conditions:/p'[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl describe pod reporter-78889bc55-jfvxg -n debug-lab | sed -n '/^Containers:/,/^Conditions:/p'
+[?2004lContainers:
+  reporter:
+    Container ID:   containerd://e3888146e11a9655da300cfb43c1378afbd547ba930319c4c37aad552bada4c7
+    Image:          docker.io/ebinterview/eb-debug-app:1.0.1
+    Image ID:       docker.io/ebinterview/eb-debug-app@sha256:17f41698c10f5c18693339281b92d3cfef16d9fcffcad440a24e7ab19e05c443
+    Port:           8081/TCP (http)
+    Host Port:      0/TCP (http)
+    State:          Running
+      Started:      Sat, 21 Nov 2026 13:56:35 +0000
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  128Mi
+    Requests:
+      cpu:      50m
+      memory:   64Mi
+    Readiness:  http-get http://:8081/healthz delay=3s timeout=3s period=5s #success=1 #failure=3
+    Environment:
+      NAMESPACE:  debug-lab (v1:metadata.namespace)
+      APP_MODE:   reporter
+      APP_NAME:   reporter
+      VERSION:    2.0.0
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-b2kl7 (ro)
+Conditions:
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl -n debug-lab run probe-4 --rm -i --restart=Never \[27m
+[7m  --image=busybox:1.36 --quiet --pod-running-timeout=90s --command -- sh -c '[27m
+[7m      sleep 2[27m
+[7m      wget -q -O- -T 4 http://backend:8080/healthz >/dev/null 2>&1 \[27m
+[7m        && echo PROBE_BACKEND=ok || echo PROBE_BACKEND=fail[27m
+[7m      GW=$(wget -q -O- -T 6 http://gateway.debug-lab.svc/status 2>/dev/null)[27m
+[7m      echo "PROBE_GATEWAY_BODY=$GW"[27m
+[7m    '[27m[A[A[A[A[A[A[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ kubectl -n debug-lab run probe-4 --rm -i --restart=Never \
+  --image=busybox:1.36 --quiet --pod-running-timeout=90s --command -- sh -c '
+      sleep 2
+      wget -q -O- -T 4 http://backend:8080/healthz >/dev/null 2>&1 \
+        && echo PROBE_BACKEND=ok || echo PROBE_BACKEND=fail
+      GW=$(wget -q -O- -T 6 http://gateway.debug-lab.svc/status 2>/dev/null)
+      echo "PROBE_GATEWAY_BODY=$GW"
+    '
+[?2004lPROBE_BACKEND=ok
+PROBE_GATEWAY_BODY={"app":"gateway","backend":"ok","backend_url":"http://backend.debug-lab.svc:8080","pod":"gateway-58d59b645d-hmxbr","self":"ok","version":"2.0.0"}
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl debug -n debug-lab -it pod/reporter-78889bc55-jfvxg --image=busybox:1.36 --target=reporter -- sh[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl debug -n debug-lab -it pod/reporter-78889bc55-jfvxg --image=busybox:1.36 --target=reporter -- sh
+[?2004lTargeting container "reporter". If you don't see processes from this container it may be because the container runtime doesn't support this feature.
+--profile=legacy is deprecated and will be removed in the future. It is recommended to explicitly specify a profile, for example "--profile=general".
+Defaulting debug container name to debugger-cx928.
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+/ # [J
+/ # / # [J
+/ # ps
+PID   USER     TIME  COMMAND
+    1 65532     0:01 /eb-debug-app
+   20 root      0:00 sh
+   29 root      0:00 ps
+/ # cat /proc/$(pidof eb-debug-app | cut -d' ' -f1)/environ | tr '\0' '\n'
+cat: can't open '/proc/1/environ': Permission denied
+/ # ^C
+
+/ # exit
+Session ended, the ephemeral container will not be restarted but may be reattached using 'kubectl attach reporter-78889bc55-jfvxg -c debugger-cx928 -i -t' if it is still running
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mNS=debug-lab[27mNS=debug-lab
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7msource <(sed -n '/^incluster_probe()/,/^}/p' scenario.sh)[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Csource <(sed -n '/^incluster_probe()/,/^}/p' scenario.sh)
+[A
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mincluster_probe[27mincluster_probe
+[?2004lPROBE_REPORTER_BODY=
+PROBE_DNS=fail
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit add broken-chart[27mgit add broken-chart
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit commit -m "Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding"[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit commit -m "Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding"
+[?2004l[main ae7c0f0] Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit add broken-chart[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit add broken-chart
+[A
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit commit -m "Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding"[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit commit -m "Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding"
+[?2004l[main 05201c0] Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mhelm template debug-lab ./broken-chart | grep -n -B2 -A2 "var/cache/app"[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Chelm template debug-lab ./broken-chart | grep -n -B2 -A2 "var/cache/app"
+[A
+[?2004l[32m[K343[m[K[36m[K-[m[K          volumeMounts:
+[32m[K344[m[K[36m[K-[m[K            - name: cache
+[32m[K345[m[K[36m[K:[m[K              mountPath: /[01;31m[Kvar/cache/app[m[K
+[32m[K346[m[K[36m[K-[m[K      volumes:
+[32m[K347[m[K[36m[K-[m[K        - name: cache
+[36m[K--[m[K
+[32m[K408[m[K[36m[K-[m[K          volumeMounts:
+[32m[K409[m[K[36m[K-[m[K            - name: cache
+[32m[K410[m[K[36m[K:[m[K              mountPath: /[01;31m[Kvar/cache/app[m[K
+[32m[K411[m[K[36m[K-[m[K      volumes:
+[32m[K412[m[K[36m[K-[m[K        - name: cache
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C./scenario.sh up
+[A
+[?2004l==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 14:28:05 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 7
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab -l app=reporter[27mkubectl get pods -n debug-lab -l app=reporter
+[?2004lNAME                        READY   STATUS    RESTARTS   AGE
+reporter-5847456c58-454n5   0/1     Running   0          8s
+reporter-78889bc55-jfvxg    0/1     Running   0          31m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab -l app=reporter[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get pods -n debug-lab -l app=reporter
+[A
+[?2004lNAME                        READY   STATUS    RESTARTS   AGE
+reporter-5847456c58-454n5   0/1     Running   0          72s
+reporter-78889bc55-jfvxg    0/1     Running   0          32m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab reporter-5847456c58-454n5 --tail=6[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl logs -n debug-lab reporter-5847456c58-454n5 --tail=6
+[?2004l2026/11/21 14:29:11 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/21 14:29:11 GET /healthz -> 503 (from 10.244.0.1:42500)
+2026/11/21 14:29:16 GET /healthz -> 503 (from 10.244.0.1:42514)
+2026/11/21 14:29:21 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/21 14:29:21 GET /healthz -> 503 (from 10.244.0.1:47938)
+2026/11/21 14:29:26 GET /healthz -> 503 (from 10.244.0.1:47954)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit log --oneline[27m
+[7mgit show --stat HEAD[27m[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ git log --oneline
+git show --stat HEAD
+[?2004l[33m05201c0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding
+[33mae7c0f0[m Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding
+[33mfce1974[m Fix lab defects: migrate restartPolicy, numeric runAsUser, worker cache volume
+[33ma162932[m Add handout lab as provided (unmodified baseline)
+[33mcommit 05201c0e954d3151cecba1dffd4ab06f7f27f1e9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Sumit Singh <sumitsinghr551@gmail.com>
+Date:   Sat Nov 21 14:27:48 2026 +0000
+
+    Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding
+
+ lab/broken-chart/templates/reporter.yaml | 8 [32m+++++++[m[31m-[m
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgit revert --no-edit HEAD[27m
+[7m./scenario.sh up[27m[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ git revert --no-edit HEAD
+./scenario.sh up
+[?2004l[main 61c8599] Revert "Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding"
+ Date: Sat Nov 21 14:31:07 2026 +0000
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 14:31:08 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 8
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab[27mkubectl get pods -n debug-lab
+[?2004lNAME                        READY   STATUS      RESTARTS   AGE
+backend-66f89fcccb-dchz7    1/1     Running     0          35m
+gateway-58d59b645d-hmxbr    1/1     Running     0          24m
+metrics-7f497f58d5-xzw4r    1/1     Running     0          35m
+migrate-s22k9               0/1     Completed   0          4h4m
+reporter-5847456c58-454n5   0/1     Running     0          4m11s
+reporter-78889bc55-jfvxg    0/1     Running     0          35m
+worker-6f9db4b465-tl79g     1/1     Running     0          35m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab --no-headers | wc -l[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get pods -n debug-lab --no-headers | wc -l
+[A
+[?2004l7
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl port-forward -n debug-lab deploy/reporter 18081:8081 >/dev/null 2>&1 &[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl port-forward -n debug-lab deploy/reporter 18081:8081 >/dev/null 2>&1 &
+[A
+[?2004l[1] 72608
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl port-forward -n debug-lab deploy/reporter 18081:8081 >/dev/null 2>&1 &[27m
+[7msleep 2[27m[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ kubectl port-forward -n debug-lab deploy/reporter 18081:8081 >/dev/null 2>&1 &
+sleep 2
+[?2004l[2] 72703
+[2]+  Exit 1                     kubectl port-forward -n debug-lab deploy/reporter 18081:8081 > /dev/null 2>&1
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mcurl -s -i localhost:18081/[27mcurl -s -i localhost:18081/
+[?2004lHTTP/1.1 200 OK
+[1mContent-Type[0m: application/json
+[1mDate[0m: Sat, 21 Nov 2026 14:32:54 GMT
+[1mContent-Length[0m: 88
+
+{"app":"reporter","mode":"reporter","pod":"reporter-78889bc55-jfvxg","version":"2.0.0"}
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mcurl -s -i localhost:18081/healthz[27mcurl -s -i localhost:18081/healthz
+[?2004lHTTP/1.1 503 Service Unavailable
+[1mContent-Type[0m: application/json
+[1mDate[0m: Sat, 21 Nov 2026 14:33:01 GMT
+[1mContent-Length[0m: 78
+
+{"error":"parse pod list: unexpected end of JSON input","status":"unhealthy"}
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkill %1[27mkill %1
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get --raw "/api/v1/namespaces/debug-lab/pods?limit=1" --as=system:serviceaccount:debug-lab:reporter | wc -[27m[7mc[27m[7m [27m
+[7mkubectl get pods -n debug-lab --no-headers | wc -l[27m[A[Akubectl get --raw "/api/v1/namespaces/debug-lab/pods?limit=1" --as=system:serviceaccount:debug-lab:reporter | wc -c
+kubectl get pods -n debug-lab --no-headers | wc -l
+[?2004l6337
+[1]+  Terminated                 kubectl port-forward -n debug-lab deploy/reporter 18081:8081 > /dev/null 2>&1
+7
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get --raw "/api/v1/namespaces/debug-lab/pods?limit=1" --as=system:serviceaccount:debug-lab:reporter | wc -[27m[7mc[27m[7m [27m
+[A[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get --raw "/api/v1/namespaces/debug-lab/pods?limit=1" --as=system:serviceaccount:debug-lab:reporter | wc -c
+[A
+[?2004l6337
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab --no-headers | wc -l[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get pods -n debug-lab --no-headers | wc -l
+[?2004l7
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mcd ~/eb-devops-takehome-v2/lab[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ccd ~/eb-devops-takehome-v2/lab
+[A
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgrep -n -B2 -A12 "reporter" broken-chart/values.yaml[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgrep -n -B2 -A12 "reporter" broken-chart/values.yaml
+[A
+[?2004l[32m[K61[m[K[36m[K-[m[K      memory: "128Mi"
+[32m[K62[m[K[36m[K-[m[K
+[32m[K63[m[K[36m[K:[m[K[01;31m[Kreporter[m[K:
+[32m[K64[m[K[36m[K-[m[K  replicas: 1
+[32m[K65[m[K[36m[K:[m[K  serviceAccountName: [01;31m[Kreporter[m[K
+[32m[K66[m[K[36m[K-[m[K  env:
+[32m[K67[m[K[36m[K:[m[K    APP_MODE: "[01;31m[Kreporter[m[K"
+[32m[K68[m[K[36m[K:[m[K    APP_NAME: "[01;31m[Kreporter[m[K"
+[32m[K69[m[K[36m[K-[m[K    VERSION: "2.0.0"
+[32m[K70[m[K[36m[K-[m[K  resources:
+[32m[K71[m[K[36m[K-[m[K    requests:
+[32m[K72[m[K[36m[K-[m[K      cpu: "50m"
+[32m[K73[m[K[36m[K-[m[K      memory: "64Mi"
+[32m[K74[m[K[36m[K-[m[K    limits:
+[32m[K75[m[K[36m[K-[m[K      cpu: "200m"
+[32m[K76[m[K[36m[K-[m[K      memory: "128Mi"
+[32m[K77[m[K[36m[K-[m[K
+[32m[K78[m[K[36m[K-[m[Kmetrics:
+[32m[K79[m[K[36m[K-[m[K  replicas: 1
+[32m[K80[m[K[36m[K-[m[K  env:
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab deploy/reporter | head -5[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl logs -n debug-lab deploy/reporter | head -5
+[?2004lFound 2 pods, using pod/reporter-78889bc55-jfvxg
+Defaulted container "reporter" out of: reporter, debugger-cx928 (ephem)
+2026/11/21 13:56:35 eb-debug-app 2.0.0 starting: mode=reporter pod=reporter-78889bc55-jfvxg listening on :8081 (image default is 8081; set PORT to override)
+2026/11/21 13:56:38 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+2026/11/21 13:56:38 GET /healthz -> 503 (from 10.244.0.1:42202)
+2026/11/21 13:56:43 GET /healthz -> 503 (from 10.244.0.1:49548)
+2026/11/21 13:56:48 pod list failed: kubernetes API returned HTTP 403: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:serviceaccount:debug-lab:reporter\" cannot list resource \"pods\" in API group \"\" in the namespace \"debug-lab\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab -l app=reporter -o wide[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get pods -n debug-lab -l app=reporter -o wide
+[A
+[?2004lNAME                        READY   STATUS    RESTARTS   AGE   IP            NODE                 NOMINATED NODE   READINESS GATES
+reporter-5847456c58-454n5   0/1     Running   0          14m   10.244.0.29   demo-control-plane   <none>           <none>
+reporter-78889bc55-jfvxg    0/1     Running   0          45m   10.244.0.19   demo-control-plane   <none>           <none>
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get rs -n debug-lab -l app=reporter[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get rs -n debug-lab -l app=reporter
+[A
+[?2004lNAME                  DESIRED   CURRENT   READY   AGE
+reporter-5847456c58   1         1         0       14m
+reporter-78889bc55    1         1         0       45m
+reporter-86d6b886f5   0         0         0       4h15m
+reporter-969499965    0         0         0       5h36m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab -l app=reporter --all-containers=false --tail=4 --prefix[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl logs -n debug-lab -l app=reporter --all-containers=false --tail=4 --prefix
+[?2004lDefaulted container "reporter" out of: reporter, debugger-cx928 (ephem)
+[pod/reporter-5847456c58-454n5/reporter] 2026/11/21 14:42:16 GET /healthz -> 503 (from 10.244.0.1:51376)
+[pod/reporter-5847456c58-454n5/reporter] 2026/11/21 14:42:21 GET /healthz -> 503 (from 10.244.0.1:47312)
+[pod/reporter-5847456c58-454n5/reporter] 2026/11/21 14:42:26 pod list failed: parse pod list: unexpected end of JSON input
+[pod/reporter-5847456c58-454n5/reporter] 2026/11/21 14:42:26 GET /healthz -> 503 (from 10.244.0.1:47322)
+[pod/reporter-78889bc55-jfvxg/reporter] 2026/11/21 14:42:18 GET /healthz -> 503 (from 10.244.0.1:37300)
+[pod/reporter-78889bc55-jfvxg/reporter] 2026/11/21 14:42:23 GET /healthz -> 503 (from 10.244.0.1:39508)
+[pod/reporter-78889bc55-jfvxg/reporter] 2026/11/21 14:42:28 pod list failed: parse pod list: unexpected end of JSON input
+[pod/reporter-78889bc55-jfvxg/reporter] 2026/11/21 14:42:28 GET /healthz -> 503 (from 10.244.0.1:39522)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mtime kubectl get --raw "/api/v1/namespaces/debug-lab/pods" --as=system:serviceaccount:debug-lab:reporter | wc -c[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ctime kubectl get --raw "/api/v1/namespaces/debug-lab/pods" --as=system:serviceaccount:debug-lab:reporter | wc -c
+[?2004l45196
+
+real	0m0.131s
+user	0m0.048s
+sys	0m0.046s
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mcd ~/eb-devops-takehome-v2/lab[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ccd ~/eb-devops-takehome-v2/lab
+[A
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mls cluster-state/[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cls cluster-state/
+[A
+[?2004llimits.yaml  namespace.yaml
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mgrep -n "^kind:" cluster-state/*.yaml[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgrep -n "^kind:" cluster-state/*.yaml
+[A
+[?2004l[35m[Kcluster-state/limits.yaml[m[K[36m[K:[m[K[32m[K8[m[K[36m[K:[m[K[01;31m[Kkind:[m[K LimitRange
+[35m[Kcluster-state/namespace.yaml[m[K[36m[K:[m[K[32m[K5[m[K[36m[K:[m[K[01;31m[Kkind:[m[K Namespace
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mdiff broken-chart/templates/reporter.yaml broken-chart/templates/backend.yaml[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cdiff broken-chart/templates/reporter.yaml broken-chart/templates/backend.yaml
+[?2004l4c4
+<   name: reporter
+---
+>   name: backend
+6c6
+<     app: reporter
+---
+>     app: backend
+9c9
+<   replicas: {{ .Values.reporter.replicas }}
+---
+>   replicas: {{ .Values.backend.replicas }}
+12c12
+<       app: reporter
+---
+>       app: backend
+16c16
+<         app: reporter
+---
+>         app: backend
+19d18
+<       serviceAccountName: {{ .Values.reporter.serviceAccountName }}
+21c20
+<         - name: reporter
+---
+>         - name: backend
+28,32c27
+<             - name: NAMESPACE
+<               valueFrom:
+<                 fieldRef:
+<                   fieldPath: metadata.namespace
+<             {{- range $name, $value := .Values.reporter.env }}
+---
+>             {{- range $name, $value := .Values.backend.env }}
+51c46
+<             {{- toYaml .Values.reporter.resources | nindent 12 }}
+---
+>             {{- toYaml .Values.backend.resources | nindent 12 }}
+56c51
+<   name: reporter
+---
+>   name: backend
+58c53
+<     app: reporter
+---
+>     app: backend
+62c57
+<     app: reporter
+---
+>     app: backend
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get networkpolicy,resourcequota,limitrange -n debug-lab[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get networkpolicy,resourcequota,limitrange -n debug-lab
+[A
+[?2004lNAME                              CREATED AT
+limitrange/debug-lab-guardrails   2026-11-21T09:08:15Z
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pod -n debug-lab -l app=reporter -o yaml | grep -n -i -E "args|command|automount|env|value" | head -30[27m [A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl get pod -n debug-lab -l app=reporter -o yaml | grep -n -i -E "args|command|automount|env|value" | head -30 [A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K0
+[?2004l27:    - env:
+29:        valueFrom:
+34:        value: reporter
+36:        value: reporter
+38:        value: 2.0.0
+198:    - env:
+200:        valueFrom:
+205:        value: reporter
+207:        value: reporter
+209:        value: 2.0.0
+251:    - command:
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl run apitest -n debug-lab --rm -i --restart=Never \[27m
+[7m  --image=curlimages/curl:8.10.1 \[27m
+[7m  --overrides='{"spec":{"serviceAccountName":"reporter"}}' \[27m
+[7m  --command -- sh -c 'T=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); curl -s -o /tmp/o -w "http=%{http_code} size=%{size_download} type=%{conten[27m[7mt[27m[7m_type}\n" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H "Authorization: Bearer $T" https://kubernetes.default.svc/api/v1/namespaces/debug-l[27m[7ma[27m[7mb/pods; head -c 200 /tmp/o'[27m[A[A[A[A[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ kubectl run apitest -n debug-lab --rm -i --restart=Never \
+  --image=curlimages/curl:8.10.1 \
+  --overrides='{"spec":{"serviceAccountName":"reporter"}}' \
+  --command -- sh -c 'T=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); curl -s -o /tmp/o -w "http=%{http_code} size=%{size_download} type=%{content_type}\n" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H "Authorization: Bearer $T" https://kubernetes.default.svc/api/v1/namespaces/debug-lab/pods; head -c 200 /tmp/o'
+[?2004lhttp=200 size=103789 type=application/json
+{
+  "kind": "PodList",
+  "apiVersion": "v1",
+  "metadata": {
+    "resourceVersion": "28791"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "apitest",
+        "namespace": "debug-lab",
+   pod "apitest" deleted from debug-lab namespace
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m# 1. Kitne pods par size 64 KiB (65536) cross karta hai[27m
+[7mkubectl run apitest2 -n debug-lab --rm -i --restart=Never \[27m
+[7m  --image=curlimages/curl:8.10.1 \[27m
+[7m  --overrides='{"spec":{"serviceAccountName":"reporter"}}' \[27m
+[7m  --command -- sh -c 'T=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); for n in 1 2 3 4 5 6 7 8; do echo -n "limit=$n "; curl -s -o /dev/null -w "[27m[7ms[27m[7mize=%{size_download}\n" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H "Authorization: Bearer $T" "https://kubernetes.default.svc/api/v1/nam[27m[7me[27m[7mspaces/debug-lab/pods?limit=$n"; done' [27m
+
+[7m# 2. Reporter ka apna root endpoint, poora output[27m
+[7mkubectl run apitest3 -n debug-lab --rm -i --restart=Never \[27m
+[7m  --image=busybox:1.36 --command -- wget -qO- http://reporter:8080/[27m[A[A[A[A[A[A[A[A[A[A# 1. Kitne pods par size 64 KiB (65536) cross karta hai
+kubectl run apitest2 -n debug-lab --rm -i --restart=Never \
+  --image=curlimages/curl:8.10.1 \
+  --overrides='{"spec":{"serviceAccountName":"reporter"}}' \
+  --command -- sh -c 'T=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token); for n in 1 2 3 4 5 6 7 8; do echo -n "limit=$n "; curl -s -o /dev/null -w "size=%{size_download}\n" --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H "Authorization: Bearer $T" "https://kubernetes.default.svc/api/v1/namespaces/debug-lab/pods?limit=$n"; done'
+
+# 2. Reporter ka apna root endpoint, poora output
+kubectl run apitest3 -n debug-lab --rm -i --restart=Never \
+  --image=busybox:1.36 --command -- wget -qO- http://reporter:8080/
+[?2004lAll commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+size=60372
+limit=6 size=75154
+limit=7 size=90466
+limit=8 size=104044
+pod "apitest2" deleted from debug-lab namespace
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+wget: can't connect to remote host (10.96.176.78): Connection refused
+pod "apitest3" deleted from debug-lab namespace
+pod debug-lab/apitest3 terminated (Error)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mcd ~/eb-devops-takehome-v2[27mcd ~/eb-devops-takehome-v2
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mgit status --short[27mgit status --short
+[?2004l[31m??[m lab/part4-session.log
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mgit log --oneline | head -3[27mgit log --oneline | head -3
+[?2004l61c8599 Revert "Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding"
+05201c0 Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding
+ae7c0f0 Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mgit status[27mgit status
+[?2004lOn branch main
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	[31mlab/part4-session.log[m
+
+nothing added to commit but untracked files present (use "git add" to track)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mgit log --oneline origin/main | head -3[27mgit log --oneline origin/main | head -3
+[?2004lfatal: ambiguous argument 'origin/main': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mgit remote -v[27m
+[7mgit branch -vv[27m
+[7mgit push -u origin main[27m[A[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ git remote -v
+git branch -vv
+git push -u origin main
+[?2004l* [32mmain[m 61c8599 Revert "Fix lab defects: port, metrics cpu, gateway backend URL, reporter RoleBinding"
+fatal: 'origin' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mcd ~/eb-devops-takehome-v2[27mcd ~/eb-devops-takehome-v2
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ ls
+[?2004l[0m[01;34mlab[0m
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mgit remote add origin https://github.com/tumhara-username/repo-naam.git[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit remote add origin https://github.com/tumhara-username/repo-naam.git[C[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1@s[1@u[1@m[1@i[1@t[1@s[1@i[1@n[1@g[1@h[1@r[1@a[1@j[1@k[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[1P[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[7mgit remote add origin https://github.com/sumitsinghrajk/devops-takehome.git[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit remote add origin https://github.com/sumitsinghrajk/devops-takehome.git
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mgit remote -v[27mgit remote -v
+[?2004lorigin	https://github.com/sumitsinghrajk/devops-takehome.git (fetch)
+origin	https://github.com/sumitsinghrajk/devops-takehome.git (push)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mgit push -u origin main[27mgit push -u origin main
+[?2004lEnumerating objects: 47, done.
+Counting objects:   2% (1/47)Counting objects:   4% (2/47)Counting objects:   6% (3/47)Counting objects:   8% (4/47)Counting objects:  10% (5/47)Counting objects:  12% (6/47)Counting objects:  14% (7/47)Counting objects:  17% (8/47)Counting objects:  19% (9/47)Counting objects:  21% (10/47)Counting objects:  23% (11/47)Counting objects:  25% (12/47)Counting objects:  27% (13/47)Counting objects:  29% (14/47)Counting objects:  31% (15/47)Counting objects:  34% (16/47)Counting objects:  36% (17/47)Counting objects:  38% (18/47)Counting objects:  40% (19/47)Counting objects:  42% (20/47)Counting objects:  44% (21/47)Counting objects:  46% (22/47)Counting objects:  48% (23/47)Counting objects:  51% (24/47)Counting objects:  53% (25/47)Counting objects:  55% (26/47)Counting objects:  57% (27/47)Counting objects:  59% (28/47)Counting objects:  61% (29/47)Counting objects:  63% (30/47)Counting objects:  65% (31/47)Counting objects:  68% (32/47)Counting objects:  70% (33/47)Counting objects:  72% (34/47)Counting objects:  74% (35/47)Counting objects:  76% (36/47)Counting objects:  78% (37/47)Counting objects:  80% (38/47)Counting objects:  82% (39/47)Counting objects:  85% (40/47)Counting objects:  87% (41/47)Counting objects:  89% (42/47)Counting objects:  91% (43/47)Counting objects:  93% (44/47)Counting objects:  95% (45/47)Counting objects:  97% (46/47)Counting objects: 100% (47/47)Counting objects: 100% (47/47), done.
+Delta compression using up to 8 threads
+Compressing objects:   2% (1/43)Compressing objects:   4% (2/43)Compressing objects:   6% (3/43)Compressing objects:   9% (4/43)Compressing objects:  11% (5/43)Compressing objects:  13% (6/43)Compressing objects:  16% (7/43)Compressing objects:  18% (8/43)Compressing objects:  20% (9/43)Compressing objects:  23% (10/43)Compressing objects:  25% (11/43)Compressing objects:  27% (12/43)Compressing objects:  30% (13/43)Compressing objects:  32% (14/43)Compressing objects:  34% (15/43)Compressing objects:  37% (16/43)Compressing objects:  39% (17/43)Compressing objects:  41% (18/43)Compressing objects:  44% (19/43)Compressing objects:  46% (20/43)Compressing objects:  48% (21/43)Compressing objects:  51% (22/43)Compressing objects:  53% (23/43)Compressing objects:  55% (24/43)Compressing objects:  58% (25/43)Compressing objects:  60% (26/43)Compressing objects:  62% (27/43)Compressing objects:  65% (28/43)Compressing objects:  67% (29/43)Compressing objects:  69% (30/43)Compressing objects:  72% (31/43)Compressing objects:  74% (32/43)Compressing objects:  76% (33/43)Compressing objects:  79% (34/43)Compressing objects:  81% (35/43)Compressing objects:  83% (36/43)Compressing objects:  86% (37/43)Compressing objects:  88% (38/43)Compressing objects:  90% (39/43)Compressing objects:  93% (40/43)Compressing objects:  95% (41/43)Compressing objects:  97% (42/43)Compressing objects: 100% (43/43)Compressing objects: 100% (43/43), done.
+Writing objects:   2% (1/47)Writing objects:   4% (2/47)Writing objects:   6% (3/47)Writing objects:   8% (4/47)Writing objects:  10% (5/47)Writing objects:  12% (6/47)Writing objects:  14% (7/47)Writing objects:  17% (8/47)Writing objects:  19% (9/47)Writing objects:  21% (10/47)Writing objects:  23% (11/47)Writing objects:  25% (12/47)Writing objects:  27% (13/47)Writing objects:  36% (17/47)Writing objects:  38% (18/47)Writing objects:  40% (19/47)Writing objects:  42% (20/47)Writing objects:  44% (21/47)Writing objects:  46% (22/47)Writing objects:  48% (23/47)Writing objects:  51% (24/47)Writing objects:  53% (25/47)Writing objects:  55% (26/47)Writing objects:  57% (27/47)Writing objects:  59% (28/47)Writing objects:  61% (29/47)Writing objects:  63% (30/47)Writing objects:  65% (31/47)Writing objects:  68% (32/47)Writing objects:  70% (33/47)Writing objects:  72% (34/47)Writing objects:  74% (35/47)Writing objects:  76% (36/47)Writing objects:  78% (37/47)Writing objects:  80% (38/47)Writing objects:  82% (39/47)Writing objects:  85% (40/47)Writing objects:  87% (41/47)Writing objects:  89% (42/47)Writing objects:  91% (43/47)Writing objects:  93% (44/47)Writing objects:  95% (45/47)Writing objects:  97% (46/47)Writing objects: 100% (47/47)Writing objects: 100% (47/47), 9.12 KiB | 666.00 KiB/s, done.
+Total 47 (delta 20), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas:   0% (0/20)[Kremote: Resolving deltas:   5% (1/20)[Kremote: Resolving deltas:  10% (2/20)[Kremote: Resolving deltas:  15% (3/20)[Kremote: Resolving deltas:  20% (4/20)[Kremote: Resolving deltas:  25% (5/20)[Kremote: Resolving deltas:  30% (6/20)[Kremote: Resolving deltas:  35% (7/20)[Kremote: Resolving deltas:  40% (8/20)[Kremote: Resolving deltas:  45% (9/20)[Kremote: Resolving deltas:  50% (10/20)[Kremote: Resolving deltas:  55% (11/20)[Kremote: Resolving deltas:  60% (12/20)[Kremote: Resolving deltas:  65% (13/20)[Kremote: Resolving deltas:  70% (14/20)[Kremote: Resolving deltas:  75% (15/20)[Kremote: Resolving deltas:  80% (16/20)[Kremote: Resolving deltas:  85% (17/20)[Kremote: Resolving deltas:  90% (18/20)[Kremote: Resolving deltas:  95% (19/20)[Kremote: Resolving deltas: 100% (20/20)[Kremote: Resolving deltas: 100% (20/20), done.[K
+To https://github.com/sumitsinghrajk/devops-takehome.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2[00m$ [7mcd ~/eb-devops-takehome-v2/lab[27mcd ~/eb-devops-takehome-v2/lab
+[?2004l[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh reset[27m./scenario.sh reset
+[?2004l\==> removing the lab
+release "debug-lab" uninstalled
+namespace "debug-lab" deleted
+Removed. Note: this does NOT restore the chart files — use git for that.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ \[7m./scenario.sh up[27m./scenario.sh up
+[?2004l==> applying cluster environment (cluster-state/)
+namespace/debug-lab created
+Error from server (NotFound): error when creating "cluster-state/limits.yaml": namespaces "debug-lab" not found
+==> installing the broken chart
+Release "debug-lab" does not exist. Installing it now.
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 15:05:53 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m./scenario.sh up
+[?2004l==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails created
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 15:06:02 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7msleep 60[27msleep 60
+[?2004l^C
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh up[27m
+[7msleep 60[27m[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ ./scenario.sh up
+sleep 60
+[?2004l==> applying cluster environment (cluster-state/)
+limitrange/debug-lab-guardrails unchanged
+namespace/debug-lab unchanged
+==> installing the broken chart
+Release "debug-lab" has been upgraded. Happy Helming!
+NAME: debug-lab
+LAST DEPLOYED: Sat Nov 21 15:06:23 2026
+NAMESPACE: debug-lab
+STATUS: deployed
+REVISION: 3
+TEST SUITE: None
+NOTES:
+debug-lab installed into namespace debug-lab.
+
+Goal state:
+  * migrate Job: Completed
+  * backend, gateway, worker, reporter, metrics: all pods Running and 1/1 Ready
+  * gateway /status reports {"self":"ok","backend":"ok",...}
+
+Check your progress at any time:
+  ./scenario.sh verify
+
+Lab is (partially) installed. Investigate with kubectl, fix the chart,
+re-run './scenario.sh up' to apply your fixes, and './scenario.sh verify'
+to check progress.
+^C
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl get pods -n debug-lab[27mkubectl get pods -n debug-lab
+[?2004lNAME                       READY   STATUS      RESTARTS   AGE
+backend-66f89fcccb-th5z7   1/1     Running     0          50s
+gateway-58d59b645d-htxcc   1/1     Running     0          50s
+metrics-7f497f58d5-kfs84   1/1     Running     0          50s
+migrate-nl6bs              0/1     Completed   0          50s
+reporter-78889bc55-q79xt   0/1     Running     0          50s
+worker-6f9db4b465-ht6qt    1/1     Running     0          50s
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl logs -n debug-lab deploy/reporter --tail=5[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Ckubectl logs -n debug-lab deploy/reporter --tail=5
+[A
+[?2004l2026/11/21 15:06:39 GET /healthz -> 503 (from 10.244.0.1:59592)
+2026/11/21 15:06:44 GET /healthz -> 503 (from 10.244.0.1:39270)
+2026/11/21 15:06:49 pod list failed: parse pod list: unexpected end of JSON input
+2026/11/21 15:06:49 GET /healthz -> 503 (from 10.244.0.1:39274)
+2026/11/21 15:06:54 GET /healthz -> 503 (from 10.244.0.1:33262)
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7m./scenario.sh verify[27m./scenario.sh verify
+[?2004l==> verifying goal state in namespace debug-lab
+  [32mPASS[0m  migrate Job completed
+  [32mPASS[0m  deployment backend: 1/1 ready
+  [32mPASS[0m  deployment gateway: 1/1 ready
+  [32mPASS[0m  deployment worker: 1/1 ready
+  [31mFAIL[0m  deployment reporter: 0/1 ready
+  [32mPASS[0m  deployment metrics: 1/1 ready
+  [32mPASS[0m  no pods in CrashLoopBackOff
+  [32mPASS[0m  ServiceAccount debug-lab/reporter can list pods
+  [31mFAIL[0m  backend does not answer on http://backend:8080/healthz
+  [31mFAIL[0m  gateway /status does not report backend=ok
+  [31mFAIL[0m  reporter /report does not return a pod count
+
+[31m4 check(s) failing[0m, 7 passing. Keep digging — every failure is a symptom.
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mcd ~/eb-devops-takehome-v2/lab[27m
+[7msource <(sed -n '/^incluster_probe()/,/^}/p' scenario.sh)[27m
+[7mNS=debug-lab[27m
+[7mfor i in 1 2 3; do echo "--- run $i"; incluster_probe; done[27m[A[A[Acd ~/eb-devops-takehome-v2/lab
+source <(sed -n '/^incluster_probe()/,/^}/p' scenario.sh)
+NS=debug-lab
+for i in 1 2 3; do echo "--- run $i"; incluster_probe; done
+[?2004l--- run 1
+PROBE_REPORTER_BODY=
+PROBE_DNS=fail
+--- run 2
+PROBE_REPORTER_BODY=
+PROBE_DNS=fail
+--- run 3
+PROBE_REPORTER_BODY=
+PROBE_DNS=fail
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mexit[27mexit
+[?2004lexit
+
+Script done on 2026-11-21 15:10:28+00:00 [COMMAND_EXIT_CODE="0"]
