@@ -2397,3 +2397,51 @@ There are stopped jobs.
 [?2004lexit
 
 Script done on 2026-11-22 04:29:04+00:00 [COMMAND_EXIT_CODE="0"]
+Script started on 2026-11-22 04:32:58+00:00 [TERM="xterm-256color" TTY="/dev/pts/9" COLUMNS="159" LINES="17"]
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mfor i in 1 2 3 4 5 6; do[27m
+[7m  kubectl -n rempty run f$i --image=busybox:1.36 --restart=Never -- sleep 3600 >/dev/null[27m
+[7m  sleep 14[27m
+[7m  b=$(kubectl get --raw /api/v1/namespaces/rempty/pods | wc -c)[27m
+[7m  kubectl -n rtest port-forward pod/t-empty 18084:8081 >/dev/null 2>&1 &[27m
+[7m  PF=$![27m
+[7m  sleep 2[27m
+[7m  echo -n "fillers=$i list_bytes=$b  "; curl -s localhost:18084/report | cut -c1-110; echo[27m
+[7m  kill $PF; wait $PF 2>/dev/null[27m
+[7mdone[27m[A[A[A[A[A[A[A[A[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ for i in 1 2 3 4 5 6; do
+  kubectl -n rempty run f$i --image=busybox:1.36 --restart=Never -- sleep 3600 >/dev/null
+  sleep 14
+  b=$(kubectl get --raw /api/v1/namespaces/rempty/pods | wc -c)
+  kubectl -n rtest port-forward pod/t-empty 18084:8081 >/dev/null 2>&1 &
+  PF=$!
+  sleep 2
+  echo -n "fillers=$i list_bytes=$b  "; curl -s localhost:18084/report | cut -c1-110; echo
+  kill $PF; wait $PF 2>/dev/null
+done
+[?2004l[1] 14105
+fillers=1 list_bytes=4195  {"error":"parse pod list: unexpected end of JSON input","status":"unhealthy"}
+
+[1] 14235
+fillers=2 list_bytes=8816  {"error":"parse pod list: unexpected end of JSON input","status":"unhealthy"}
+
+[1] 14357
+fillers=3 list_bytes=12669  {"error":"parse pod list: unexpected end of JSON input","status":"unhealthy"}
+
+[1] 14490
+fillers=4 list_bytes=16778  {"error":"parse pod list: unexpected end of JSON input","status":"unhealthy"}
+
+[1] 14618
+fillers=5 list_bytes=21143  {"error":"parse pod list: unexpected end of JSON input","status":"unhealthy"}
+
+[1] 14746
+fillers=6 list_bytes=24996  {"error":"parse pod list: unexpected end of JSON input","status":"unhealthy"}
+
+[?2004h]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ [7mkubectl delete namespace rtest rempty[27m
+[7mjobs[27m
+[7mexit[27m[A[A]0;sumit@Sumit-MSI: ~/eb-devops-takehome-v2/lab[01;32msumit@Sumit-MSI[00m:[01;34m~/eb-devops-takehome-v2/lab[00m$ kubectl delete namespace rtest rempty
+jobs
+exit
+[?2004lnamespace "rtest" deleted
+namespace "rempty" deleted
+cd ~/eb-devops-takehome-v2/lab                              ^Cexit
+
+Script done on 2026-11-22 04:37:23+00:00 [COMMAND_EXIT_CODE="0"]

@@ -281,3 +281,27 @@ strong. One pod is about 6 KB in this cluster, so a limit smaller than that is s
 
 **Next step I did not get to:** in the empty namespace, add small pods one at a time and watch `t-empty`'s `/report`,
 to find at which list size or pod count it starts to fail.
+
+### Reporter: how the failure depends on the number of pods
+
+In the empty namespace `rempty`, I added one small `busybox` pod at a time (`sleep 3600`) and called `/report` of
+`t-empty` after about 14 seconds each time. Both the run and its output are in `part4-session.log`.
+
+| Pods in `rempty` | Pod list size (`kubectl get --raw`) | `/report` |
+|---|---|---|
+| 0 | very small | `{"namespace":"rempty","pod":"t-empty","pods":0}` |
+| 1 | 4195 bytes | `unexpected end of JSON input` |
+| 2 | 8816 bytes | `unexpected end of JSON input` |
+| 3 | 12669 bytes | `unexpected end of JSON input` |
+| 4 | 16778 bytes | `unexpected end of JSON input` |
+| 5 | 21143 bytes | `unexpected end of JSON input` |
+| 6 | 24996 bytes | `unexpected end of JSON input` |
+
+So the failure does not grow with the list: it already happens at one pod. If it is a size limit, it is below 4195
+bytes. My guess (not proven) is that the reporter reads only the first 4096 bytes of the response. One pod in this
+cluster is already about 4 KB, and I found no chart setting that makes the list smaller; deleting pods or lowering
+replicas to shrink it would break the lab rules, so I did not try it.
+
+I stopped here because of time. What I would try next: look at the reporter's configuration options (the other
+failures printed hints such as `PORT` and `CACHE_DIR`, this one printed none), and ask the author whether a
+setting or a label selector is meant to limit what the reporter lists.
