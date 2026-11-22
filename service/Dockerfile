@@ -1,11 +1,11 @@
 # ---- build stage: validates the source; keeps the pattern ready for dependencies later
-FROM python:3.12.7-slim-bookworm AS build
+FROM python:3.12.16-slim-bookworm AS build
 WORKDIR /src
 COPY app.py .
 RUN python -m py_compile app.py
 
 # ---- runtime stage
-FROM python:3.12.7-slim-bookworm
+FROM python:3.12.16-slim-bookworm
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PORT=8080
