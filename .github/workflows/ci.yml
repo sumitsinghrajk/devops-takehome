@@ -33,4 +33,7 @@ jobs:
           image-ref: demo-app:ci
           severity: HIGH,CRITICAL
           exit-code: "1"
-          # ignore-unfixed: true   # only if the base image has findings without a fix
+          # The remaining findings have no fixed version yet (Debian status: affected,
+          # fix_deferred, will_not_fix), so there is nothing to upgrade to. Fail only on
+          # findings that have a fix.
+          ignore-unfixed: "true"
