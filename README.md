@@ -61,7 +61,7 @@ Part 4 status: seven fixes are in `lab/broken-chart/`, but `verify` is **not** g
 - **Service:** Python standard library only (`http.server`), so there are no dependencies to
   patch. `APP_NAME` and `VERSION` are read on every request. A SIGTERM handler lets the process
   stop quickly; `docker stop` took 0.7 s in my test.
-- **Dockerfile:** multi-stage, pinned base tag `python:3.12.7-slim-bookworm`, runs as numeric UID
+- **Dockerfile:** multi-stage, pinned base tag `python:3.12.16-slim-bookworm`, runs as numeric UID
   10001 (a numeric ID is needed for `runAsNonRoot`; I learned this in Part 4). The build stage
   only compiles the file, because there are no dependencies yet. It is a pattern, not a big
   saving.
@@ -74,6 +74,22 @@ Part 4 status: seven fixes are in `lab/broken-chart/`, but `verify` is **not** g
   which I confirmed by testing it.
 - **Security context:** non-root, read-only root filesystem, no privilege escalation, all
   capabilities dropped.
+
+## CI (optional bonus)
+
+`.github/workflows/ci.yml` runs on every push and pull request with two jobs: `chart-lint` (`helm lint`
+and a render with value overrides) and `image` (`docker build` and a Trivy scan that fails on HIGH/CRITICAL).
+
+- The first run failed: Trivy reported 153 findings (144 HIGH, 9 CRITICAL) on my original base image
+  `python:3.12.7-slim-bookworm` (Debian 12.8). The findings were all in OS packages; none in Python packages.
+- I moved to `python:3.12.16-slim-bookworm` (Debian 12.15). That left 101 findings (99 HIGH, 2 CRITICAL).
+- In the Trivy table of the CI log, every remaining row had an empty "Fixed Version" (status `affected`,
+  `fix_deferred` or `will_not_fix`), so there was nothing to upgrade to. I set `ignore-unfixed: true`, so the
+  job now fails only on findings that have a fix.
+- **Risk of that choice:** those 101 findings are still in the image, and the pipeline will not flag them until a
+  fix exists. They need a regular rescan, or a smaller base image.
+- The Trivy action is pinned to the tag `0.35.0`, not to a commit SHA. A release note of that action
+  mentions a compromised tag, so for production I would pin by commit SHA.
 
 ## Resource requests and limits
 
@@ -100,8 +116,8 @@ close to normal usage.
   picked up when the pods are restarted.
 - **PodDisruptionBudget, anti-affinity, HPA, NetworkPolicy.** Risk: a node drain can take down both
   replicas, and there is no autoscaling or network isolation.
-- **Automated tests and CI.** I did not do the optional pipeline (lint, build, Trivy). Risk: nothing
-  scans the image or the chart automatically, so a vulnerable base image would not be noticed.
+- **Unit tests.** There are none; CI only lints the chart and scans the image. Risk: behaviour changes in
+  `app.py` are not caught automatically.
 - **A production web server.** `http.server` is not meant for heavy traffic. Risk: low throughput and
   no real request limits.
 - **Image pinned by tag, not digest**, and ingress-nginx pinned to `controller-v1.12.1`. Risk: a tag
@@ -110,7 +126,8 @@ close to normal usage.
 
 ## What I would change for production
 
-- Push the image to a registry, pin it by digest, scan it with Trivy in CI and fail on HIGH/CRITICAL.
+- Push the image to a registry and pin it by digest. Trivy already runs in CI; I would also rescan the
+  pushed image regularly, and move to a smaller base once patched packages exist for the findings below.
 - Terminate TLS with cert-manager.
 - Add a PodDisruptionBudget, topology spread or anti-affinity, an HPA, and NetworkPolicies.
 - Use a real WSGI/ASGI server and structured logs; export metrics and set the resource numbers from data.
@@ -154,6 +171,9 @@ close to normal usage.
 - My own mistakes: lowercase `never` in `restartPolicy`, a wrong indentation of `volumeMounts`, a
   duplicated `resources:` key in `values.yaml`, and pasting a `<pod-name>` placeholder with the angle
   brackets. I caught them with `git diff`, Helm's error message and `cat -A`.
+- The first base image tag I pinned (`3.12.7`) was old. I only found out when the Trivy step in CI failed
+  with 153 findings, and then bumped it. The CI workflow was drafted with Claude and the action versions were
+  looked up with a web search; the first run was the real test.
 - Where there was a choice, I made it myself: I kept `runAsNonRoot: true` and added a numeric
   `runAsUser` instead of removing the check, I chose `restartPolicy: Never` for the Job, and I
   changed `common.port` to `8081` instead of setting `PORT` on every workload. I did not guess
