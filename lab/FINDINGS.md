@@ -253,3 +253,31 @@ The reporter pod stays `0/1`. `/` returns 200, but `/healthz` and `/report` retu
 **Side note on `./scenario.sh verify`.** The backend and gateway checks fail even though both Deployments are `1/1` and the same requests work by hand (`200 OK`, and the gateway `/status` shows `"backend":"ok"`). I ran the script's own `incluster_probe` three times. Every time the first two lines (`PROBE_BACKEND` and `PROBE_GATEWAY_BODY`) were missing, and only `PROBE_REPORTER_BODY` and `PROBE_DNS` were printed. With `sleep 2` added to my own copy, `PROBE_BACKEND=ok` appeared. My guess is that output printed before `kubectl run -i` attaches gets lost, but I did not prove it. I did not change `scenario.sh`.
 
 **Side note on `./scenario.sh up`.** On the first run, `limits.yaml` failed with `namespaces "debug-lab" not found`. `kubectl apply -f cluster-state/` applies files in alphabetical order, so the LimitRange came before the Namespace. A second `up` worked. Nothing in `cluster-state/` was changed.
+
+## Reporter: follow-up experiments in an isolated namespace
+
+To see whether the reporter fails because of the lab or because of the image, I ran it outside the lab, in a
+separate namespace `rtest`: only the image, a ServiceAccount, a Role and a RoleBinding. No chart, no LimitRange, and
+no lab workload was touched. The first three pods ran before I restarted my recording, so they are not in
+`part4-session.log`. The last run (`t-plain`, `t-empty` and the `/report` loop) is in the recording.
+
+| Pod | What was different | `/report` |
+|---|---|---|
+| `reporter-test` (alone in `rtest` at the time) | same securityContext and resources as the chart | `unexpected end of JSON input` |
+| `t-rw` | `readOnlyRootFilesystem: false` | `unexpected end of JSON input` |
+| `t-nolim` | no CPU/memory limits | `unexpected end of JSON input` |
+| `t-plain` | no securityContext, no resources | `unexpected end of JSON input` |
+| `t-empty` | `NAMESPACE=rempty`, a namespace with no pods | `{"namespace":"rempty","pod":"t-empty","pods":0}` |
+
+What I take from this:
+
+- The pod settings I could change in the chart (securityContext, resources, writable filesystem) make no difference.
+- Authentication, TLS and the network path work: `t-empty` calls the same API with the same ServiceAccount and succeeds.
+- The reporter fails when the pod list is not empty, and works when it has 0 pods.
+
+I corrected two earlier guesses. The pod list being large because of my own debugging leftovers is not the cause
+(`reporter-test` failed when it was the only pod). I also wrote earlier that a size limit was ruled out; that was too
+strong. One pod is about 6 KB in this cluster, so a limit smaller than that is still possible, and I did not test it.
+
+**Next step I did not get to:** in the empty namespace, add small pods one at a time and watch `t-empty`'s `/report`,
+to find at which list size or pod count it starts to fail.
