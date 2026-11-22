@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  chart-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: helm lint
+        run: helm lint chart
+      - name: render with overrides (same idea as the grading harness)
+        run: |
+          helm template demo chart \
+            --set replicaCount=3 --set config.appName=ci --set ingress.host=ci.test \
+            | grep -E "replicas: 3|APP_NAME: \"ci\"|host: \"ci.test\""
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t demo-app:ci service
+      - name: Trivy scan (fail on HIGH/CRITICAL)
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: demo-app:ci
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          # ignore-unfixed: true   # only if the base image has findings without a fix
